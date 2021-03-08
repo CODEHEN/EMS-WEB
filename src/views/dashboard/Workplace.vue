@@ -3,78 +3,40 @@
     <template v-slot:content>
       <div class="page-header-content">
         <div class="avatar">
-          <a-avatar size="large" :src="avatar"/>
+          <a-avatar size="large" :src="user.avatar"/>
         </div>
         <div class="content">
           <div class="content-title">
             {{ timeFix }}，{{ user.username }}<span class="welcome-text">，{{ welcome }}</span>
           </div>
-          <div>{{user.classes}} | {{user.college}} - {{user.major}}</div>
+          <div>{{ user.classes }} | {{ user.college }} - {{ user.major }}</div>
         </div>
       </div>
     </template>
-    <template v-slot:extraContent>
-      <div class="extra-content">
-        <div class="stat-item">
-          <a-statistic title="项目数" :value="56" />
-        </div>
-        <div class="stat-item">
-          <a-statistic title="团队内排名" :value="8" suffix="/ 24" />
-        </div>
-        <div class="stat-item">
-          <a-statistic title="项目访问" :value="2223" />
-        </div>
-      </div>
-    </template>
-
+<!--    <template v-slot:extraContent>-->
+<!--      <div class="extra-content">-->
+<!--        <div class="stat-item">-->
+<!--          <a-statistic title="项目数" :value="56" />-->
+<!--        </div>-->
+<!--        <div class="stat-item">-->
+<!--          <a-statistic title="团队内排名" :value="8" suffix="/ 24" />-->
+<!--        </div>-->
+<!--        <div class="stat-item">-->
+<!--          <a-statistic title="项目访问" :value="2223" />-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </template>-->
     <div>
       <a-row :gutter="24">
         <a-col :xl="16" :lg="24" :md="24" :sm="24" :xs="24">
           <a-card
             class="project-list"
             :loading="loading"
-            style="margin-bottom: 24px;"
             :bordered="false"
-            title="进行中的项目"
+            title="学期课表"
             :body-style="{ padding: 0 }">
-            <a slot="extra">全部项目</a>
-            <div>
-              <a-card-grid class="project-card-grid" :key="i" v-for="(item, i) in projects">
-                <a-card :bordered="false" :body-style="{ padding: 0 }">
-                  <a-card-meta>
-                    <div slot="title" class="card-title">
-                      <a-avatar size="small" :src="item.cover"/>
-                      <a>{{ item.title }}</a>
-                    </div>
-                    <div slot="description" class="card-description">
-                      {{ item.description }}
-                    </div>
-                  </a-card-meta>
-                  <div class="project-item">
-                    <a href="/#/">科学搬砖组</a>
-                    <span class="datetime">9小时前</span>
-                  </div>
-                </a-card>
-              </a-card-grid>
-            </div>
           </a-card>
-
-          <a-card :loading="loading" title="动态" :bordered="false">
-            <a-list>
-              <a-list-item :key="index" v-for="(item, index) in activities">
-                <a-list-item-meta>
-                  <a-avatar slot="avatar" :src="item.user.avatar"/>
-                  <div slot="title">
-                    <span>{{ item.user.nickname }}</span>&nbsp;
-                    在&nbsp;<a href="#">{{ item.project.name }}</a>&nbsp;
-                    <span>{{ item.project.action }}</span>&nbsp;
-                    <a href="#">{{ item.project.event }}</a>
-                  </div>
-                  <div slot="description">{{ item.time }}</div>
-                </a-list-item-meta>
-              </a-list-item>
-            </a-list>
-          </a-card>
+          <div id="coursesTable"></div>
         </a-col>
         <a-col
           style="padding: 0 12px"
@@ -83,39 +45,33 @@
           :md="24"
           :sm="24"
           :xs="24">
-          <a-card title="快速开始 / 便捷导航" style="margin-bottom: 24px" :bordered="false" :body-style="{padding: 0}">
-            <div class="item-group">
-              <a>操作一</a>
-              <a>操作二</a>
-              <a>操作三</a>
-              <a>操作四</a>
-              <a>操作五</a>
-              <a>操作六</a>
-              <a-button size="small" type="primary" ghost icon="plus">添加</a-button>
-            </div>
-          </a-card>
-          <a-card
-            title="XX 指数"
-            style="margin-bottom: 24px"
-            :loading="radarLoading"
-            :bordered="false"
-            :body-style="{ padding: 0 }">
-            <div style="min-height: 400px;">
-              <!-- :scale="scale" :axis1Opts="axis1Opts" :axis2Opts="axis2Opts"  -->
-              <radar :data="radarData"/>
-            </div>
-          </a-card>
-          <a-card :loading="loading" title="团队" :bordered="false">
+          <a-card title="常用操作" style="margin-bottom: 24px" :bordered="false">
             <div class="members">
               <a-row>
-                <a-col :span="12" v-for="(item, index) in teams" :key="index">
+                <a-col :span="12" v-for="(op,index) in this.operations " :key="index">
                   <a>
-                    <a-avatar size="small" :src="item.avatar"/>
-                    <span class="member">{{ item.name }}</span>
+                    <a-avatar size="small" :src="user.avatar"/>
+                    <span class="member">{{ op }}</span>
                   </a>
                 </a-col>
               </a-row>
             </div>
+          </a-card>
+
+          <a-card title="公告栏" :bordered="false">
+            <a-list>
+              <a-list-item :key="index" v-for="index of 10">
+                <a-list-item-meta>
+                  <a-avatar slot="avatar" :src="user.avatar"/>
+                  <div slot="title">
+                    <span>{{ user.username }}</span>&nbsp;
+                    在&nbsp;<a href="#">{{ user.classes }}</a>&nbsp;
+                    <span>{{ user.classes }}</span>&nbsp;
+                    <a href="#">{{ user.major }}</a>
+                  </div>
+                </a-list-item-meta>
+              </a-list-item>
+            </a-list>
           </a-card>
         </a-col>
       </a-row>
@@ -127,67 +83,45 @@
 import { timeFix } from '@/utils/util'
 import { mapState } from 'vuex'
 import { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
-import { Radar } from '@/components'
-
-import { getRoleList, getServiceList } from '@/api/manage'
-
-const DataSet = require('@antv/data-set')
+import Timetables from 'timetables'
 
 export default {
   name: 'Workplace',
   components: {
-    PageHeaderWrapper,
-    Radar
+    PageHeaderWrapper
   },
   data () {
     return {
       timeFix: timeFix(),
-      avatar: '',
       user: {},
-
-      projects: [],
+      operations: ['成绩查询', '学期选课', '课程查询', '选课中心'],
       loading: true,
-      radarLoading: true,
-      activities: [],
-      teams: [],
-
       // data
-      axis1Opts: {
-        dataKey: 'item',
-        line: null,
-        tickLine: null,
-        grid: {
-          lineStyle: {
-            lineDash: null
-          },
-          hideFirstLine: false
-        }
-      },
-      axis2Opts: {
-        dataKey: 'score',
-        line: null,
-        tickLine: null,
-        grid: {
-          type: 'polygon',
-          lineStyle: {
-            lineDash: null
-          }
-        }
-      },
-      scale: [{
-        dataKey: 'score',
-        min: 0,
-        max: 80
-      }],
-      axisData: [
-        { item: '引用', a: 70, b: 30, c: 40 },
-        { item: '口碑', a: 60, b: 70, c: 40 },
-        { item: '产量', a: 50, b: 60, c: 40 },
-        { item: '贡献', a: 40, b: 50, c: 40 },
-        { item: '热度', a: 60, b: 70, c: 40 },
-        { item: '引用', a: 70, b: 50, c: 40 }
+      timetables: [
+        ['软件开发项目实训（JAVA开发方向）\n' +
+        '甄春成\n' +
+        '9(周)' +
+        '知行楼502Web前端开发技术实验（训）室', '', '', '毛概', '选修'],
+        ['信号与系统', '', '模拟电子技术基础', '', '模拟电子技术基础'],
+        ['大学体育(Ⅳ)', '形势与政策(Ⅳ)', '', '', '电路、信号与系统实验'],
+        ['', '', '', '', '电装实习'],
+        ['', '', '数据结构与算法分析', '信号与系统', '']
       ],
-      radarData: []
+      timetableType: [
+        [{ index: '第一二节', name: '8:20-10:00' }, 1],
+        [{ index: '第三四节', name: '10:20-12:00' }, 1],
+        [{ index: '第五六节', name: '14:00-15:40' }, 1],
+        [{ index: '第七八节', name: '15:50-17:30' }, 1],
+        [{ index: '第九十节', name: '19:00-20:30' }, 1]
+      ],
+      week: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+      highlightWeek: new Date().getDay(),
+      styles: {
+        Gheight: 180,
+        leftHandWidth: 80,
+        palette: ['#ff6633', '#8f8123']
+      },
+      Timetable: null
     }
   },
   computed: {
@@ -201,68 +135,46 @@ export default {
   },
   created () {
     this.user = this.userInfo
-    console.log('user')
-    console.log(this.user)
     this.avatar = this.userInfo.avatar
-
-    getRoleList().then(res => {
-      // console.log('workplace -> call getRoleList()', res)
-    })
-
-    getServiceList().then(res => {
-      // console.log('workplace -> call getServiceList()', res)
-    })
   },
   mounted () {
-    this.getProjects()
-    this.getActivity()
-    this.getTeams()
-    this.initRadar()
+    this.Timetable = new Timetables({
+      el: '#coursesTable',
+      timetables: this.timetables,
+      week: this.week,
+      timetableType: this.timetableType,
+      highlightWeek: this.highlightWeek,
+      gridOnClick: function (e) {
+        alert(e.name + '  ' + e.week + ', 第' + e.index + '节课, 课长' + e.length + '节')
+        console.log(e)
+      },
+      styles: this.styles
+    })
   },
   methods: {
-    getProjects () {
-      this.$http.get('/list/search/projects')
-        .then(res => {
-          this.projects = res.result && res.result.data
-          this.loading = false
-        })
-    },
-    getActivity () {
-      this.$http.get('/workplace/activity')
-        .then(res => {
-          this.activities = res.result
-        })
-    },
-    getTeams () {
-      this.$http.get('/workplace/teams')
-        .then(res => {
-          this.teams = res.result
-        })
-    },
-    initRadar () {
-      this.radarLoading = true
-
-      this.$http.get('/workplace/radar')
-        .then(res => {
-          const dv = new DataSet.View().source(res.result)
-          dv.transform({
-            type: 'fold',
-            fields: ['个人', '团队', '部门'],
-            key: 'user',
-            value: 'score'
-          })
-
-          this.radarData = dv.rows
-          this.radarLoading = false
-        })
-    }
   }
 }
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
   @import "./Workplace.less";
 
+  #coursesTable {
+    background-color: white;
+    .Courses-leftHand {
+      text-align: center;
+      line-height: 6;
+    }
+    .Courses-content {
+      li {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+    }
+
+  }
   .project-list {
 
     .card-title {
@@ -332,7 +244,6 @@ export default {
       display: inline-block;
       font-size: 14px;
       margin-bottom: 13px;
-      width: 25%;
     }
   }
 

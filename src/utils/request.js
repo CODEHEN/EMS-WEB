@@ -1,6 +1,5 @@
 import axios from 'axios'
 import store from '@/store'
-import storage from 'store'
 import notification from 'ant-design-vue/es/notification'
 import { VueAxios } from './axios'
 import { getToken } from '@/utils/auth'
@@ -11,50 +10,56 @@ const request = axios.create({
   baseURL: process.env.VUE_APP_API_BASE_URL,
   timeout: 6000 // 请求超时时间
 })
-
-// 异常拦截处理器
-const errorHandler = (error) => {
-  if (error.response) {
-    const data = error.response.data
-    // 从 localstorage 获取 token
-    const token = storage.getters.token
-    if (error.response.status === 403) {
-      notification.error({
-        message: 'Forbidden',
-        description: data.message
-      })
-    }
-    if (error.response.status === 401 && !(data.result && data.result.isLogin)) {
-      notification.error({
-        message: 'Unauthorized',
-        description: 'Authorization verification failed'
-      })
-      if (token) {
-        store.dispatch('Logout').then(() => {
-          setTimeout(() => {
-            window.location.reload()
-          }, 1500)
-        })
-      }
-    }
-  }
-  return Promise.reject(error)
-}
-
 // request interceptor
-request.interceptors.request.use(config => {
+request.interceptors.request.use(
+  config => {
   // 如果 token 存在
   // 让每个请求携带自定义 token 请根据实际情况自行修改
   if (getToken()) {
     config.headers['X-Token'] = getToken()
   }
   return config
-}, errorHandler)
+  },
+  error => {
+    // Do something with request error
+    console.log(error) // for debug
+    Promise.reject(error)
+  })
 
 // response interceptor
-request.interceptors.response.use((response) => {
-  return response.data
-}, errorHandler)
+request.interceptors.response.use(
+  response => {
+    const res = response.data
+    if (res.code !== 200) {
+      notification.error({
+        message: res.code,
+        description: res.message
+      })
+      // 401:Token过期 或 未登录
+      if (res.code === 401) {
+        notification.error({
+          message: '登录过期',
+          description: '即将跳至登录页'
+        })
+          store.dispatch('Logout').then(() => {
+              window.location.reload()
+          })
+      }
+      // eslint-disable-next-line prefer-promise-reject-errors
+      return Promise.reject('error')
+    } else {
+      return response.data
+    }
+  },
+    error => {
+      console.log('err' + error) // for debug
+      notification.error({
+        message: '错误',
+        description: error.message
+      })
+      return Promise.reject(error)
+    }
+  )
 
 const installer = {
   vm: {},

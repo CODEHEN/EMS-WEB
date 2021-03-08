@@ -6,7 +6,6 @@ import MiniArea from '@/components/Charts/MiniArea'
 import MiniSmoothArea from '@/components/Charts/MiniSmoothArea'
 import MiniBar from '@/components/Charts/MiniBar'
 import MiniProgress from '@/components/Charts/MiniProgress'
-import Radar from '@/components/Charts/Radar'
 import RankList from '@/components/Charts/RankList'
 import TransferBar from '@/components/Charts/TransferBar'
 import TagCloud from '@/components/Charts/TagCloud'
@@ -36,7 +35,6 @@ export {
   MiniSmoothArea,
   MiniBar,
   MiniProgress,
-  Radar,
   TagCloud,
   RankList,
   TransferBar,

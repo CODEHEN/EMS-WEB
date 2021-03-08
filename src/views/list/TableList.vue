@@ -5,23 +5,30 @@
         <a-form layout="inline">
           <a-row :gutter="48">
             <a-col :md="8" :sm="24">
-              <a-form-item label="规则编号">
-                <a-input v-model="queryParam.id" placeholder=""/>
+              <a-form-item label="学生编号">
+                <a-input v-model.number="queryParam.number" placeholder=""/>
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24">
-              <a-form-item label="使用状态">
-                <a-select v-model="queryParam.status" placeholder="请选择" default-value="0">
-                  <a-select-option value="0">全部</a-select-option>
-                  <a-select-option value="1">关闭</a-select-option>
-                  <a-select-option value="2">运行中</a-select-option>
-                </a-select>
+              <a-form-item label="学生姓名">
+                <a-input v-model.number="queryParam.username" placeholder=""/>
               </a-form-item>
             </a-col>
             <template v-if="advanced">
               <a-col :md="8" :sm="24">
-                <a-form-item label="调用次数">
-                  <a-input-number v-model="queryParam.callNo" style="width: 100%"/>
+                <a-form-item label="学院">
+                  <a-select placeholder="请选择" default-value="0" @select="selectCollege" label-in-value>
+                    <a-select-option v-for = "college in colleges" :key="college.id">{{college.name}}</a-select-option>
+                  </a-select>
+                </a-form-item>
+              </a-col>
+              <a-col :md="8" :sm="24">
+                <a-form-item label="班级">
+                  <a-select placeholder="请选择" :disabled="disabled" @change="handleChange" label-in-value>
+                    <a-select-option v-for = "(c,index) in classes" :key="index">
+                      {{ c.name }}
+                    </a-select-option>
+                  </a-select>
                 </a-form-item>
               </a-col>
               <a-col :md="8" :sm="24">
@@ -79,11 +86,10 @@
       <s-table
         ref="table"
         size="default"
-        rowKey="key"
+        rowKey="number"
         :columns="columns"
         :data="loadData"
-        :alert="true"
-        :rowSelection="rowSelection"
+        :alert="false"
         showPagination="auto"
       >
         <span slot="serial" slot-scope="text, record, index">
@@ -98,9 +104,7 @@
 
         <span slot="action" slot-scope="text, record">
           <template>
-            <a @click="handleEdit(record)">配置</a>
-            <a-divider type="vertical" />
-            <a @click="handleSub(record)">订阅报警</a>
+            <a @click="handleEdit(record)">修改</a>
           </template>
         </span>
       </s-table>
@@ -121,67 +125,62 @@
 <script>
 import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
-import { getRoleList, getServiceList } from '@/api/manage'
 
 import StepByStepModal from './modules/StepByStepModal'
 import CreateForm from './modules/CreateForm'
+import { getStudentInfo } from '@/api/admin'
+import { getCollege } from '@/api/college'
+import { getClassesByCollege } from '@/api/classes'
 
 const columns = [
   {
-    title: '#',
-    scopedSlots: { customRender: 'serial' }
+    title: '学号',
+    width: 140,
+    dataIndex: 'number'
   },
   {
-    title: '规则编号',
-    dataIndex: 'no'
+    title: '姓名',
+    width: 80,
+    dataIndex: 'username',
+    scopedSlots: { customRender: 'username' }
   },
   {
-    title: '描述',
-    dataIndex: 'description',
-    scopedSlots: { customRender: 'description' }
+    title: '班级',
+    width: 130,
+    dataIndex: 'classes'
   },
   {
-    title: '服务调用次数',
-    dataIndex: 'callNo',
-    sorter: true,
-    needTotal: true,
-    customRender: (text) => text + ' 次'
+    title: '性别',
+    width: 80,
+    dataIndex: 'sex',
+    scopedSlots: { customRender: 'sex' }
   },
   {
-    title: '状态',
-    dataIndex: 'status',
-    scopedSlots: { customRender: 'status' }
+    title: '电话号码',
+    dataIndex: 'phone'
   },
   {
-    title: '更新时间',
-    dataIndex: 'updatedAt',
-    sorter: true
+    title: '邮箱',
+    dataIndex: 'email',
+    scopedSlots: { customRender: 'email' }
+  },
+  {
+    title: '生源地',
+    dataIndex: 'origin'
+  },
+  {
+    title: '家庭地址',
+    ellipsis: true,
+    dataIndex: 'address'
   },
   {
     title: '操作',
     dataIndex: 'action',
-    width: '150px',
     scopedSlots: { customRender: 'action' }
   }
 ]
 
 const statusMap = {
-  0: {
-    status: 'default',
-    text: '关闭'
-  },
-  1: {
-    status: 'processing',
-    text: '运行中'
-  },
-  2: {
-    status: 'success',
-    text: '已上线'
-  },
-  3: {
-    status: 'error',
-    text: '异常'
-  }
 }
 
 export default {
@@ -205,15 +204,19 @@ export default {
       queryParam: {},
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
-        const requestParameters = Object.assign({}, parameter, this.queryParam)
-        console.log('loadData request parameters:', requestParameters)
-        return getServiceList(requestParameters)
+        return getStudentInfo(parameter, this.queryParam)
           .then(res => {
-            return res.result
+            if (res.data.list.length === 0) {
+              this.$message.warning('未查找到匹配用户')
+            }
+            return res.data
           })
       },
+      disabled: true,
       selectedRowKeys: [],
-      selectedRows: []
+      selectedRows: [],
+      colleges: [],
+      classes: []
     }
   },
   filters: {
@@ -225,7 +228,9 @@ export default {
     }
   },
   created () {
-    getRoleList({ t: new Date() })
+  },
+  mounted () {
+    this.getCollege()
   },
   computed: {
     rowSelection () {
@@ -236,6 +241,22 @@ export default {
     }
   },
   methods: {
+    handleChange (value) {
+      this.queryParam.classes = value.label
+    },
+    // 鼠标点击根据学院ID来查找该学院下的班级
+    selectCollege (value) {
+      this.queryParam.college = value.label
+      getClassesByCollege(value.key).then(res => {
+        this.classes = res.data
+        this.disabled = false
+      })
+    },
+    getCollege () {
+      getCollege().then(res => {
+        this.colleges = res.data
+      })
+    },
     handleAdd () {
       this.mdl = null
       this.visible = true

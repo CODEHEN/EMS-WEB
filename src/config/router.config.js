@@ -21,7 +21,7 @@ export const asyncRouterMap = [
         name: 'dashboard',
         redirect: '/dashboard/workplace',
         component: RouteView,
-        meta: { title: 'menu.dashboard', keepAlive: true, icon: bxAnaalyse, permission: ['student'] },
+        meta: { title: 'menu.dashboard', keepAlive: true, icon: bxAnaalyse, permission: ['student', 'admin'] },
         children: [
           {
             path: '/dashboard/analysis/:pageNo([1-9]\\d*)?',
@@ -39,7 +39,7 @@ export const asyncRouterMap = [
             path: '/dashboard/workplace',
             name: 'Workplace',
             component: () => import('@/views/dashboard/Workplace'),
-            meta: { title: 'menu.dashboard.workplace', keepAlive: true, permission: ['student'] }
+            meta: { title: 'menu.dashboard.workplace', keepAlive: true, permission: ['student', 'admin'] }
           }
         ]
       },
@@ -76,14 +76,14 @@ export const asyncRouterMap = [
         name: 'list',
         component: RouteView,
         redirect: '/list/table-list',
-        meta: { title: 'menu.list', icon: 'table', permission: ['table'] },
+        meta: { title: 'menu.list', icon: 'table', permission: ['admin'] },
         children: [
           {
-            path: '/list/table-list/:pageNo([1-9]\\d*)?',
+            path: '/list/table-list/:pageNum([1-9]\\d*)?',
             name: 'TableListWrapper',
             hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
             component: () => import('@/views/list/TableList'),
-            meta: { title: 'menu.list.table-list', keepAlive: true, permission: ['table'] }
+            meta: { title: 'menu.list.table-list', keepAlive: true, permission: ['admin'] }
           },
           {
             path: '/list/basic-list',
