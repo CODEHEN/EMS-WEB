@@ -17,40 +17,22 @@
             <template v-if="advanced">
               <a-col :md="8" :sm="24">
                 <a-form-item label="学院">
-                  <a-select placeholder="请选择" default-value="0" @select="selectCollege" label-in-value>
-                    <a-select-option v-for = "college in colleges" :key="college.id">{{college.name}}</a-select-option>
+                  <a-select placeholder="请选择" @select="selectMajor" v-model="queryParam.college">
+                    <a-select-option v-for="college in colleges" :key="college.id" :value="college.name">{{college.name}}</a-select-option>
+                  </a-select>
+                </a-form-item>
+              </a-col>
+              <a-col :md="8" :sm="24">
+                <a-form-item label="专业">
+                  <a-select placeholder="请选择" :disabled="majordisabled" @select="selectCollege" v-model="queryParam.major">
+                    <a-select-option v-for="(m,index) in majors" :key="index" :value="m.majorName">{{m.majorName}}</a-select-option>
                   </a-select>
                 </a-form-item>
               </a-col>
               <a-col :md="8" :sm="24">
                 <a-form-item label="班级">
-                  <a-select placeholder="请选择" :disabled="disabled" @change="handleChange" label-in-value>
-                    <a-select-option v-for = "(c,index) in classes" :key="index">
-                      {{ c.name }}
-                    </a-select-option>
-                  </a-select>
-                </a-form-item>
-              </a-col>
-              <a-col :md="8" :sm="24">
-                <a-form-item label="更新日期">
-                  <a-date-picker v-model="queryParam.date" style="width: 100%" placeholder="请输入更新日期"/>
-                </a-form-item>
-              </a-col>
-              <a-col :md="8" :sm="24">
-                <a-form-item label="使用状态">
-                  <a-select v-model="queryParam.useStatus" placeholder="请选择" default-value="0">
-                    <a-select-option value="0">全部</a-select-option>
-                    <a-select-option value="1">关闭</a-select-option>
-                    <a-select-option value="2">运行中</a-select-option>
-                  </a-select>
-                </a-form-item>
-              </a-col>
-              <a-col :md="8" :sm="24">
-                <a-form-item label="使用状态">
-                  <a-select placeholder="请选择" default-value="0">
-                    <a-select-option value="0">全部</a-select-option>
-                    <a-select-option value="1">关闭</a-select-option>
-                    <a-select-option value="2">运行中</a-select-option>
+                  <a-select placeholder="请选择" :disabled="disabled" v-model="queryParam.classes">
+                    <a-select-option v-for = "(c,index) in classes" :key="index" :value="c.name">{{c.name}}</a-select-option>
                   </a-select>
                 </a-form-item>
               </a-col>
@@ -58,7 +40,7 @@
             <a-col :md="!advanced && 8 || 24" :sm="24">
               <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
                 <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
-                <a-button style="margin-left: 8px" @click="() => this.queryParam = {}">重置</a-button>
+                <a-button style="margin-left: 8px" @click="queryReset">重置</a-button>
                 <a @click="toggleAdvanced" style="margin-left: 8px">
                   {{ advanced ? '收起' : '展开' }}
                   <a-icon :type="advanced ? 'up' : 'down'"/>
@@ -71,16 +53,6 @@
 
       <div class="table-operator">
         <a-button type="primary" icon="plus" @click="handleAdd">新建</a-button>
-        <a-dropdown v-action:edit v-if="selectedRowKeys.length > 0">
-          <a-menu slot="overlay">
-            <a-menu-item key="1"><a-icon type="delete" />删除</a-menu-item>
-            <!-- lock | unlock -->
-            <a-menu-item key="2"><a-icon type="lock" />锁定</a-menu-item>
-          </a-menu>
-          <a-button style="margin-left: 8px">
-            批量操作 <a-icon type="down" />
-          </a-button>
-        </a-dropdown>
       </div>
 
       <s-table
@@ -92,16 +64,6 @@
         :alert="false"
         showPagination="auto"
       >
-        <span slot="serial" slot-scope="text, record, index">
-          {{ index + 1 }}
-        </span>
-        <span slot="status" slot-scope="text">
-          <a-badge :status="text | statusTypeFilter" :text="text | statusFilter" />
-        </span>
-        <span slot="description" slot-scope="text">
-          <ellipsis :length="4" tooltip>{{ text }}</ellipsis>
-        </span>
-
         <span slot="action" slot-scope="text, record">
           <template>
             <a @click="handleEdit(record)">修改</a>
@@ -114,8 +76,11 @@
         :visible="visible"
         :loading="confirmLoading"
         :model="mdl"
+        :colleges="colleges"
+        :classes="classes"
         @cancel="handleCancel"
         @ok="handleOk"
+        @selectCollege="selectCollege"
       />
       <step-by-step-modal ref="modal" @ok="handleOk"/>
     </a-card>
@@ -131,12 +96,14 @@ import CreateForm from './modules/CreateForm'
 import { getStudentInfo } from '@/api/admin'
 import { getCollege } from '@/api/college'
 import { getClassesByCollege } from '@/api/classes'
+import { getMajorByCollegeName } from '@/api/major'
 
 const columns = [
   {
     title: '学号',
     width: 140,
-    dataIndex: 'number'
+    dataIndex: 'number',
+    scopedSlots: { customRender: 'usernumber' }
   },
   {
     title: '姓名',
@@ -213,10 +180,10 @@ export default {
           })
       },
       disabled: true,
-      selectedRowKeys: [],
-      selectedRows: [],
+      majordisabled: true,
       colleges: [],
-      classes: []
+      classes: [],
+      majors: []
     }
   },
   filters: {
@@ -241,15 +208,22 @@ export default {
     }
   },
   methods: {
-    handleChange (value) {
-      this.queryParam.classes = value.label
+    queryReset () {
+      this.queryParam = {}
+      this.disabled = true
     },
     // 鼠标点击根据学院ID来查找该学院下的班级
     selectCollege (value) {
-      this.queryParam.college = value.label
-      getClassesByCollege(value.key).then(res => {
+      getClassesByCollege(value).then(res => {
         this.classes = res.data
         this.disabled = false
+      })
+    },
+    selectMajor (value) {
+      getMajorByCollegeName(value).then(res => {
+        this.majors = res.data
+        console.log(this.majors)
+        this.majordisabled = false
       })
     },
     getCollege () {

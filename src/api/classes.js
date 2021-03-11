@@ -1,8 +1,8 @@
 import request from '@/utils/request'
 
-export function getClassesByCollege (collegeId) {
+export function getClassesByCollege (collegeName) {
   return request({
-    url: `/classes/${collegeId}`,
+    url: `/classes/${collegeName}`,
     method: 'get'
   })
 }
