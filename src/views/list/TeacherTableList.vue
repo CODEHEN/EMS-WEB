@@ -123,7 +123,7 @@ import { STable, Ellipsis } from '@/components'
 
 import StepByStepModal from './modules/StepByStepModal'
 import CreateForm from './modules/CreateForm'
-import { getStudentInfo, updateStudent, addStudent } from '@/api/admin'
+import { getTeacherInfo, updateStudent, addStudent } from '@/api/admin'
 import { getCollege } from '@/api/college'
 import { getClassesByCollege } from '@/api/classes'
 import { getMajorByCollegeName } from '@/api/major'
@@ -203,7 +203,7 @@ export default {
       },
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
-        return getStudentInfo(parameter, this.queryParam)
+        return getTeacherInfo(parameter, this.queryParam)
           .then(res => {
             if (res.data.list.length === 0) {
               this.$message.warning('未查找到匹配用户')

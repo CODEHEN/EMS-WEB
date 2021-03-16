@@ -86,6 +86,13 @@ export const asyncRouterMap = [
             meta: { title: 'menu.list.table-list', keepAlive: true, permission: ['admin'] }
           },
           {
+            path: '/list/teacher-table-list/:pageNum([1-9]\\d*)?',
+            name: 'TeacherTableListWrapper',
+            hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+            component: () => import('@/views/list/TeacherTableList'),
+            meta: { title: 'menu.list.teacher-table-list', keepAlive: true, permission: ['admin'] }
+          },
+          {
             path: '/list/basic-list',
             name: 'BasicList',
             component: () => import('@/views/list/BasicList'),
@@ -267,22 +274,22 @@ export const asyncRouterMap = [
             ]
           }
         ]
-      },
-
-      {
-        path: '/test',
-        name: '测试',
-        component: RouteView,
-        meta: { title: 'menu.list', icon: 'table', permission: ['student'] },
-        children: [
-          {
-            path: '/test/test',
-            name: 'BasicSettings',
-            component: () => import('@/views/test/Test'),
-            meta: { title: 'account.settings.menuMap.basic', permission: ['student'] }
-          }
-        ]
       }
+
+      // {
+      //   path: '/test',
+      //   name: '测试',
+      //   component: RouteView,
+      //   meta: { title: 'menu.list', icon: 'table', permission: ['student'] },
+      //   children: [
+      //     {
+      //       path: '/test/test',
+      //       name: 'BasicSettings',
+      //       component: () => import('@/views/test/Test'),
+      //       meta: { title: 'account.settings.menuMap.basic', permission: ['student'] }
+      //     }
+      //   ]
+      // }
       // other
       /*
       {
