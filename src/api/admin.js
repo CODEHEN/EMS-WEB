@@ -31,3 +31,19 @@ export function getTeacherInfo (parameter, pageinfo) {
     data: pageinfo
   })
 }
+
+export function updateTeacher (teacherInfo) {
+  return request({
+    url: '/admin/teacher',
+    method: 'put',
+    data: teacherInfo
+  })
+}
+
+export function addTeacher (teacherInfo) {
+  return request({
+    url: '/admin/teacher',
+    method: 'post',
+    data: teacherInfo
+  })
+}

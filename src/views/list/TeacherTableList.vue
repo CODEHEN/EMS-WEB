@@ -5,34 +5,20 @@
         <a-form layout="inline">
           <a-row :gutter="48">
             <a-col :md="8" :sm="24">
-              <a-form-item label="学生编号">
+              <a-form-item label="教师编号">
                 <a-input v-model.number="queryParam.number" placeholder=""/>
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24">
-              <a-form-item label="学生姓名">
+              <a-form-item label="教师姓名">
                 <a-input v-model.number="queryParam.username" placeholder=""/>
               </a-form-item>
             </a-col>
             <template v-if="advanced">
               <a-col :md="8" :sm="24">
-                <a-form-item label="学院">
-                  <a-select placeholder="请选择" @select="selectMajor" v-model="queryParam.college">
+                <a-form-item label="所属学院">
+                  <a-select placeholder="请选择" v-model="queryParam.college">
                     <a-select-option v-for="college in colleges" :key="college.id" :value="college.name">{{ college.name }}</a-select-option>
-                  </a-select>
-                </a-form-item>
-              </a-col>
-              <a-col :md="8" :sm="24">
-                <a-form-item label="专业">
-                  <a-select placeholder="请选择" :disabled="majordisabled" @select="selectClasses" v-model="queryParam.major">
-                    <a-select-option v-for="(m,index) in majors" :key="index" :value="m.majorName">{{ m.majorName }}</a-select-option>
-                  </a-select>
-                </a-form-item>
-              </a-col>
-              <a-col :md="8" :sm="24">
-                <a-form-item label="班级">
-                  <a-select placeholder="请选择" :disabled="disabled" v-model="queryParam.classes">
-                    <a-select-option v-for="(c,index) in classes" :key="index" :value="c.name">{{ c.name }}</a-select-option>
                   </a-select>
                 </a-form-item>
               </a-col>
@@ -74,7 +60,7 @@
           name="file"
           :multiple="true"
           :action="actionUrl"
-          :data={roleId:2}
+          :data={roleId:3}
           accept=".xls,.xlsx"
           @change="fileChange"
         >
@@ -105,12 +91,8 @@
         :loading="confirmLoading"
         :model="mdl"
         :colleges="colleges"
-        :majors="majors"
-        :classes="classes"
         @cancel="handleCancel"
         @ok="handleOk"
-        @selectClasses="selectClasses"
-        @selectMajor="selectMajor"
       />
       <step-by-step-modal ref="modal" @ok="handleOk"/>
     </a-card>
@@ -122,15 +104,13 @@ import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
 
 import StepByStepModal from './modules/StepByStepModal'
-import CreateForm from './modules/CreateForm'
-import { getTeacherInfo, updateStudent, addStudent } from '@/api/admin'
+import CreateForm from './modules/TeacherCreateForm'
+import { getTeacherInfo, updateTeacher, addTeacher } from '@/api/admin'
 import { getCollege } from '@/api/college'
-import { getClassesByCollege } from '@/api/classes'
-import { getMajorByCollegeName } from '@/api/major'
 
 const columns = [
   {
-    title: '学号',
+    title: '编号',
     width: 140,
     dataIndex: 'number',
     scopedSlots: { customRender: 'usernumber' }
@@ -142,15 +122,15 @@ const columns = [
     scopedSlots: { customRender: 'username' }
   },
   {
-    title: '班级',
-    width: 130,
-    dataIndex: 'classes'
-  },
-  {
     title: '性别',
     width: 80,
     dataIndex: 'sex',
     scopedSlots: { customRender: 'sex' }
+  },
+  {
+    title: '所属学院',
+    dataIndex: 'college',
+    scopedSlots: { customRender: 'college' }
   },
   {
     title: '电话号码',
@@ -160,10 +140,6 @@ const columns = [
     title: '邮箱',
     dataIndex: 'email',
     scopedSlots: { customRender: 'email' }
-  },
-  {
-    title: '生源地',
-    dataIndex: 'origin'
   },
   {
     title: '家庭地址',
@@ -216,8 +192,6 @@ export default {
       isdisabled: true,
       modelVisible: false,
       colleges: [],
-      classes: [],
-      majors: [],
       actionUrl: process.env.VUE_APP_API_BASE_URL + '/user/userInfoExcel'
     }
   },
@@ -263,21 +237,6 @@ export default {
       this.disabled = true
       this.majordisabled = true
     },
-    // 鼠标点击根据学院ID来查找该学院下的班级
-    selectClasses (value) {
-      this.queryParam.classes = ''
-      getClassesByCollege(value).then(res => {
-        this.classes = res.data
-        this.disabled = false
-      })
-    },
-    selectMajor (value) {
-      this.queryParam.major = ''
-      getMajorByCollegeName(value).then(res => {
-        this.majors = res.data
-        this.majordisabled = false
-      })
-    },
     getCollege () {
       getCollege().then(res => {
         this.colleges = res.data
@@ -286,24 +245,19 @@ export default {
     handleAdd () {
       this.mdl = null
       this.isdisabled = false
-      this.classes = []
-      this.majors = []
       this.visible = true
     },
     handleEdit (record) {
       this.mdl = { ...record }
-      this.selectMajor(this.mdl.college)
-      this.selectClasses(this.mdl.major)
       this.visible = true
     },
     handleOk (model, isdisabled) {
       const form = this.$refs.createModal.form
-      console.log('form', JSON.stringify(form.getFieldsValue()))
       this.confirmLoading = true
       form.validateFields((errors, values) => {
         if (!errors) {
           if (isdisabled === true) {
-            updateStudent(form.getFieldsValue()).then(res => {
+            updateTeacher(form.getFieldsValue()).then(res => {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
@@ -314,7 +268,7 @@ export default {
               this.$message.info('修改成功')
             })
           } else {
-            addStudent(form.getFieldsValue()).then(res => {
+            addTeacher(form.getFieldsValue()).then(res => {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
@@ -331,17 +285,10 @@ export default {
       })
     },
     handleCancel () {
+      this.isdisabled = true
       this.visible = false
-
       const form = this.$refs.createModal.form
       form.resetFields() // 清理表单数据（可不做）
-    },
-    handleSub (record) {
-      if (record.status !== 0) {
-        this.$message.info(`${record.no} 订阅成功`)
-      } else {
-        this.$message.error(`${record.no} 订阅失败，规则已关闭`)
-      }
     },
     onSelectChange (selectedRowKeys, selectedRows) {
       this.selectedRowKeys = selectedRowKeys
