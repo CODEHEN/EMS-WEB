@@ -47,3 +47,27 @@ export function addTeacher (teacherInfo) {
     data: teacherInfo
   })
 }
+
+export function getCollegeInfo (parameter, pageinfo) {
+  return request({
+    url: `/admin/college/info?pageNum=${parameter.pageNum}&pageSize=${parameter.pageSize}`,
+    method: 'post',
+    data: pageinfo
+  })
+}
+
+export function updateCollege (collegeInfo) {
+  return request({
+    url: '/college',
+    method: 'put',
+    data: collegeInfo
+  })
+}
+
+export function addCollege (collegeInfo) {
+  return request({
+    url: '/college',
+    method: 'post',
+    data: collegeInfo
+  })
+}

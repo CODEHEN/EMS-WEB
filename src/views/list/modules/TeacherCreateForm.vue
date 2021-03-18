@@ -76,7 +76,8 @@ export default {
       default: () => null
     },
     colleges: {
-      type: Array
+      type: Array,
+      default: () => []
     }
   },
   data () {

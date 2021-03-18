@@ -93,6 +93,13 @@ export const asyncRouterMap = [
             meta: { title: 'menu.list.teacher-table-list', keepAlive: true, permission: ['admin'] }
           },
           {
+            path: '/list/college-table-list/:pageNum([1-9]\\d*)?',
+            name: 'CollegeTableListWrapper',
+            hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+            component: () => import('@/views/list/CollegeTableList'),
+            meta: { title: 'menu.list.college-table-list', keepAlive: true, permission: ['admin'] }
+          },
+          {
             path: '/list/basic-list',
             name: 'BasicList',
             component: () => import('@/views/list/BasicList'),

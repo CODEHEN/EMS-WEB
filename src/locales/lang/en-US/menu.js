@@ -15,6 +15,7 @@ export default {
     'menu.list': 'Information Management',
     'menu.list.table-list': 'Student Management',
     'menu.list.teacher-table-list': 'Teacher Management',
+    'menu.list.college-table-list': 'College Management',
     'menu.list.basic-list': 'Basic List',
     'menu.list.card-list': 'Card List',
     'menu.list.search-list': 'Search List',

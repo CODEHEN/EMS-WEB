@@ -15,6 +15,7 @@ export default {
     'menu.list': '信息管理',
     'menu.list.table-list': '学生信息管理',
     'menu.list.teacher-table-list': '教师信息管理',
+    'menu.list.college-table-list': '学院信息管理',
     'menu.list.basic-list': '标准列表',
     'menu.list.card-list': '卡片列表',
     'menu.list.search-list': '搜索列表',
