@@ -6,3 +6,11 @@ export function getClassesByCollege (collegeName) {
     method: 'get'
   })
 }
+
+export function getClassInfo (parameter, pageinfo) {
+  return request({
+    url: `/classes/info?pageNum=${parameter.pageNum}&pageSize=${parameter.pageSize}`,
+    method: 'post',
+    data: pageinfo
+  })
+}

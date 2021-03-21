@@ -5,20 +5,29 @@
         <a-form layout="inline">
           <a-row :gutter="48">
             <a-col :md="8" :sm="24">
-              <a-form-item label="学院名称">
-                <a-input v-model="queryParam.name" placeholder=""/>
+              <a-form-item label="管理员编号">
+                <a-input v-model.number="queryParam.number" placeholder=""/>
               </a-form-item>
             </a-col>
-            <a-col :md="!advanced && 8" :sm="24">
-              <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
-              <a-button style="margin-left: 8px" @click="queryReset">重置</a-button>
+            <a-col :md="8" :sm="24">
+              <a-form-item label="管理员姓名">
+                <a-input v-model.number="queryParam.username" placeholder=""/>
+              </a-form-item>
+            </a-col>
+            <a-col :md="8" :sm="24">
+              <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
+                <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
+                <a-button style="margin-left: 8px" @click="queryReset">重置</a-button>
+              </span>
             </a-col>
           </a-row>
         </a-form>
       </div>
 
       <div class="table-operator">
-        <a-button type="primary" icon="plus" @click="handleAdd">新建</a-button>
+        <a-button type="primary" icon="plus" @click="handleAdd">
+          新建
+        </a-button>
       </div>
 
       <s-table
@@ -54,36 +63,42 @@
 <script>
 import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
-
 import StepByStepModal from './modules/StepByStepModal'
-import CreateForm from './modules/CollegeCreateForm'
-import { getCollegeInfo, updateCollege, addCollege } from '@/api/admin'
+import CreateForm from './modules/AdminCreateForm'
+import { getAdminInfo, updateAdmin, addAdmin } from '@/api/admin'
 
 const columns = [
   {
     title: '编号',
-    dataIndex: 'id',
-    scopedSlots: { customRender: 'id' }
+    width: 140,
+    dataIndex: 'number',
+    scopedSlots: { customRender: 'usernumber' }
   },
   {
-    title: '学院名称',
-    dataIndex: 'name',
-    scopedSlots: { customRender: 'name' }
+    title: '姓名',
+    width: 80,
+    dataIndex: 'username',
+    scopedSlots: { customRender: 'username' }
   },
   {
-    title: '学生人数',
-    dataIndex: 'studentNum',
-    scopedSlots: { customRender: 'studentNum' }
+    title: '性别',
+    width: 80,
+    dataIndex: 'sex',
+    scopedSlots: { customRender: 'sex' }
   },
   {
-    title: '教师人数',
-    dataIndex: 'teacherNum',
-    scopedSlots: { customRender: 'teacherNum' }
+    title: '联系电话',
+    dataIndex: 'phone'
   },
   {
-    title: '创建时间',
-    dataIndex: 'createdTime',
-    scopedSlots: { customRender: 'createdTime' }
+    title: '邮箱',
+    dataIndex: 'email',
+    scopedSlots: { customRender: 'email' }
+  },
+  {
+    title: '家庭地址',
+    ellipsis: true,
+    dataIndex: 'address'
   },
   {
     title: '操作',
@@ -91,6 +106,9 @@ const columns = [
     scopedSlots: { customRender: 'action' }
   }
 ]
+
+const statusMap = {
+}
 
 export default {
   name: 'TableList',
@@ -115,7 +133,7 @@ export default {
       },
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
-        return getCollegeInfo(parameter, this.queryParam)
+        return getAdminInfo(parameter, this.queryParam)
           .then(res => {
             if (res.data.list.length === 0) {
               this.$message.warning('未查找到匹配用户')
@@ -126,10 +144,20 @@ export default {
       disabled: true,
       majordisabled: true,
       isdisabled: true,
-      modelVisible: false,
-      colleges: [],
-      actionUrl: process.env.VUE_APP_API_BASE_URL + '/user/userInfoExcel'
+      modelVisible: false
     }
+  },
+  filters: {
+    statusFilter (type) {
+      return statusMap[type].text
+    },
+    statusTypeFilter (type) {
+      return statusMap[type].status
+    }
+  },
+  created () {
+  },
+  mounted () {
   },
   computed: {
     rowSelection () {
@@ -169,14 +197,14 @@ export default {
       this.mdl = { ...record }
       this.visible = true
     },
-    handleOk (time, isdisabled) {
+    handleOk (isdisabled) {
+      console.log(isdisabled)
       const form = this.$refs.createModal.form
       this.confirmLoading = true
-      form.setFieldsValue({ 'createdTime': time })
       form.validateFields((errors, values) => {
         if (!errors) {
           if (isdisabled === true) {
-            updateCollege(form.getFieldsValue()).then(res => {
+            updateAdmin(form.getFieldsValue()).then(res => {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
@@ -187,8 +215,7 @@ export default {
               this.$message.info('修改成功')
             })
           } else {
-            console.log(form.getFieldsValue())
-            addCollege(form.getFieldsValue()).then(res => {
+            addAdmin(form.getFieldsValue()).then(res => {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据

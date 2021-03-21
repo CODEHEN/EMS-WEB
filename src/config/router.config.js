@@ -76,7 +76,7 @@ export const asyncRouterMap = [
         name: 'list',
         component: RouteView,
         redirect: '/list/table-list',
-        meta: { title: 'menu.list', icon: 'table', permission: ['admin'] },
+        meta: { title: 'menu.info-list', icon: 'table', permission: ['admin'] },
         children: [
           {
             path: '/list/table-list/:pageNum([1-9]\\d*)?',
@@ -93,11 +93,25 @@ export const asyncRouterMap = [
             meta: { title: 'menu.list.teacher-table-list', keepAlive: true, permission: ['admin'] }
           },
           {
-            path: '/list/college-table-list/:pageNum([1-9]\\d*)?',
-            name: 'CollegeTableListWrapper',
+            path: '/list/admin-table-list/:pageNum([1-9]\\d*)?',
+            name: 'AdminTableListWrapper',
             hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
-            component: () => import('@/views/list/CollegeTableList'),
-            meta: { title: 'menu.list.college-table-list', keepAlive: true, permission: ['admin'] }
+            component: () => import('@/views/list/AdminTableList'),
+            meta: { title: 'menu.list.admin-table-list', keepAlive: true, permission: ['admin'] }
+          },
+          {
+            path: '/list/college-major-table-list/:pageNum([1-9]\\d*)?',
+            name: 'CollegeMajorTableListWrapper',
+            hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+            component: () => import('@/views/list/CollegeMajorTableList'),
+            meta: { title: 'menu.list.college-major-table-list', keepAlive: true, permission: ['admin'] }
+          },
+          {
+            path: '/list/class-table-list/:pageNum([1-9]\\d*)?',
+            name: 'ClassTableListWrapper',
+            hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+            component: () => import('@/views/list/ClassTableList'),
+            meta: { title: 'menu.list.class-table-list', keepAlive: true, permission: ['admin'] }
           },
           {
             path: '/list/basic-list',
@@ -139,6 +153,13 @@ export const asyncRouterMap = [
             ]
           }
         ]
+      },
+
+      {
+        path: '/profile',
+        name: 'profile',
+        component: () => import('@/views/profile/basic'),
+        meta: { title: 'menu.profile', icon: 'profile', permission: ['admin'] }
       },
 
       // profile

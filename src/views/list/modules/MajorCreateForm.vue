@@ -4,7 +4,7 @@
     :width="640"
     :visible="visible"
     :confirmLoading="loading"
-    @ok="() => { $emit('ok',time, isdisabled) }"
+    @ok="() => { $emit('ok', isdisabled) }"
     @cancel="() => { $emit('cancel') }"
   >
     <a-spin :spinning="loading">
@@ -15,16 +15,19 @@
         <a-form-item label="编号" v-show="isdisabled">
           <a-input v-decorator="['id']" :disabled="isdisabled" />
         </a-form-item>
-        <a-form-item label="学院名称" >
-          <a-input v-decorator="['name', {rules: [{required: true, message: '请输入学院名称'}]}]" />
+        <a-form-item label="学院">
+          <a-select placeholder="请选择" @select="selectMajor" v-decorator="['college', {rules: [{required: true, message: '请选择学院'}]}]">
+            <a-select-option v-for = "college in colleges" :key="college.id" :value="college.id">{{college.name}}</a-select-option>
+          </a-select>
         </a-form-item>
-        <a-form-item label="创建时间">
-          <a-date-picker
-            format="YYYY-MM-DD HH:mm:ss"
-            @change="onChange"
-            v-decorator="['createdTime',{initialValue: null}]"
-            show-time
-            placeholder="Select Time"/>
+        <a-form-item label="专业名称" >
+          <a-input v-decorator="['majorName', {rules: [{required: true, message: '请输入学院名称'}]}]" />
+        </a-form-item>
+        <a-form-item label="类型">
+          <a-select placeholder="请选择" v-decorator="['type', {rules: [{required: true, message: '请选择类别'}]}]">
+            <a-select-option value="本科">本科</a-select-option>
+            <a-select-option value="专科">专科</a-select-option>
+          </a-select>
         </a-form-item>
       </a-form>
     </a-spin>
@@ -33,9 +36,8 @@
 
 <script>
 import pick from 'lodash.pick'
-
 // 表单字段
-const fields = ['id', 'name', 'createdTime']
+const fields = ['id', 'college', 'majorName', 'type']
 
 export default {
   props: {
@@ -54,6 +56,9 @@ export default {
     model: {
       type: Object,
       default: () => null
+    },
+    colleges: {
+      type: Array
     }
   },
   data () {
@@ -82,8 +87,9 @@ export default {
   watch: {
   },
   methods: {
-    onChange (value, dateString) {
-      this.time = dateString
+    selectMajor (value) {
+      this.$emit('selectMajor', value)
+      this.form.setFieldsValue({ 'major': '' })
     }
   }
 }

@@ -71,3 +71,27 @@ export function addCollege (collegeInfo) {
     data: collegeInfo
   })
 }
+
+export function getAdminInfo (parameter, pageinfo) {
+  return request({
+    url: `/admin/admin/info?pageNum=${parameter.pageNum}&pageSize=${parameter.pageSize}`,
+    method: 'post',
+    data: pageinfo
+  })
+}
+
+export function updateAdmin (adminInfo) {
+  return request({
+    url: '/admin/admin',
+    method: 'put',
+    data: adminInfo
+  })
+}
+
+export function addAdmin (adminInfo) {
+  return request({
+    url: '/admin/admin',
+    method: 'post',
+    data: adminInfo
+  })
+}
