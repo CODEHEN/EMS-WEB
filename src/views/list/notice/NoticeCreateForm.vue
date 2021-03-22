@@ -9,21 +9,29 @@
   >
     <a-spin :spinning="loading">
       <a-form :form="form" v-bind="formLayout">
-        <a-form-item label="编号" v-show="false">
+        <a-form-item v-show="false" label="ID">
           <a-input v-decorator="['id']"/>
         </a-form-item>
-        <a-form-item label="学院">
-          <a-select placeholder="请选择" @select="selectMajor" v-decorator="['college', {rules: [{required: true, message: '请选择学院'}]}]">
-            <a-select-option v-for = "college in colleges" :key="college.id" :value="college.name">{{college.name}}</a-select-option>
+        <a-form-item label="编号">
+          <a-input v-decorator="['number']" :disabled="isdisabled" />
+        </a-form-item>
+        <a-form-item label="姓名">
+          <a-input v-decorator="['username', {rules: [{required: true, message: '请输入学院名称'}]}]" />
+        </a-form-item>
+        <a-form-item label="性别">
+          <a-select placeholder="请选择" v-decorator="['sex', {rules: [{required: true, message: '请选择性别'}]}]">
+            <a-select-option value="男">男</a-select-option>
+            <a-select-option value="女">女</a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item label="专业">
-          <a-select placeholder="请选择" v-decorator="['major', {rules: [{required: true, message: '请选择专业'}]}]">
-            <a-select-option v-for = "major in majors" :key="major.id" :value="major.majorName">{{major.majorName}}</a-select-option>
-          </a-select>
+        <a-form-item label="联系电话">
+          <a-input v-decorator="['phone', {rules: [{required: true, min: 11, message: '请检查手机号码格式', trigger: 'blur'}]}]" />
         </a-form-item>
-        <a-form-item label="班级名称">
-          <a-input v-decorator="['name', {rules: [{required: true, message: '请输入班级名称'}]}]" />
+        <a-form-item label="电子邮箱">
+          <a-input v-decorator="['email', {rules: [{required: true, message: '请输入邮箱地址',trigger: 'blur'}]}]" />
+        </a-form-item>
+        <a-form-item label="地址">
+          <a-input v-decorator="['address', {rules: [{required: true,message: '请输入地址', trigger: 'blur'}]}]" />
         </a-form-item>
       </a-form>
     </a-spin>
@@ -34,7 +42,7 @@
 import pick from 'lodash.pick'
 
 // 表单字段
-const fields = ['id', 'college', 'major', 'name']
+const fields = ['id', 'number', 'username', 'sex', 'phone', 'email', 'address']
 
 export default {
   props: {
@@ -53,12 +61,6 @@ export default {
     model: {
       type: Object,
       default: () => null
-    },
-    colleges: {
-      type: Array
-    },
-    majors: {
-      type: Array
     }
   },
   data () {
@@ -85,15 +87,8 @@ export default {
     })
   },
   watch: {
-    majors: function (newval) {
-      this.majors = newval
-    }
   },
   methods: {
-    selectMajor (value) {
-      this.$emit('selectMajor', value)
-      this.form.setFieldsValue({ 'major': '' })
-    }
   }
 }
 </script>

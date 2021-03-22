@@ -156,10 +156,30 @@ export const asyncRouterMap = [
       },
 
       {
-        path: '/profile',
-        name: 'profile',
-        component: () => import('@/views/profile/basic'),
-        meta: { title: 'menu.profile', icon: 'profile', permission: ['admin'] }
+        path: '/public',
+        name: 'public',
+        component: RouteView,
+        meta: { title: 'menu.public', icon: 'profile', permission: ['admin'] },
+        children: [
+          {
+            path: '/public/notice',
+            name: 'Notice',
+            component: () => import('../views/list/search/Article'),
+            meta: { title: 'menu.list.notice', permission: ['admin'] }
+          },
+          {
+            path: '/list/search/project',
+            name: 'SearchProjects',
+            component: () => import('../views/list/search/Projects'),
+            meta: { title: 'menu.list.search-list.projects', permission: ['table'] }
+          },
+          {
+            path: '/list/search/application',
+            name: 'SearchApplications',
+            component: () => import('../views/list/search/Applications'),
+            meta: { title: 'menu.list.search-list.applications', permission: ['table'] }
+          }
+        ]
       },
 
       // profile
@@ -302,7 +322,7 @@ export const asyncRouterMap = [
             ]
           }
         ]
-      }
+      },
 
       // {
       //   path: '/test',
@@ -319,24 +339,23 @@ export const asyncRouterMap = [
       //   ]
       // }
       // other
-      /*
       {
         path: '/other',
         name: 'otherPage',
-        component: PageView,
-        meta: { title: '其他组件', icon: 'slack', permission: [ 'dashboard' ] },
+        component: RouteView,
+        meta: { title: '其他组件', icon: 'slack', permission: [ 'admin' ] },
         redirect: '/other/icon-selector',
         children: [
           {
             path: '/other/icon-selector',
             name: 'TestIconSelect',
             component: () => import('@/views/other/IconSelectorView'),
-            meta: { title: 'IconSelector', icon: 'tool', keepAlive: true, permission: [ 'dashboard' ] }
+            meta: { title: 'IconSelector', icon: 'tool', keepAlive: true, permission: [ 'admin' ] }
           },
           {
             path: '/other/list',
             component: RouteView,
-            meta: { title: '业务布局', icon: 'layout', permission: [ 'support' ] },
+            meta: { title: '业务布局', icon: 'layout', permission: [ 'admin' ] },
             redirect: '/other/list/tree-list',
             children: [
               {
@@ -379,7 +398,6 @@ export const asyncRouterMap = [
           }
         ]
       }
-      */
     ]
   },
   {

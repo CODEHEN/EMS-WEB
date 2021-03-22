@@ -5,28 +5,17 @@
         <a-form layout="inline">
           <a-row :gutter="48">
             <a-col :md="8" :sm="24">
-              <a-form-item label="班级名称">
-                <a-input v-model="queryParam.name" placeholder=""/>
+              <a-form-item label="管理员编号">
+                <a-input v-model.number="queryParam.number" placeholder=""/>
               </a-form-item>
             </a-col>
-            <template>
-              <a-col :md="8" :sm="24">
-                <a-form-item label="学院">
-                  <a-select placeholder="请选择" @select="selectMajor" v-model="queryParam.college">
-                    <a-select-option v-for="college in colleges" :key="college.id" :value="college.name">{{ college.name }}</a-select-option>
-                  </a-select>
-                </a-form-item>
-              </a-col>
-              <a-col :md="8" :sm="24">
-                <a-form-item label="专业">
-                  <a-select placeholder="请选择" :disabled="majordisabled" @select="selectClasses" v-model="queryParam.major">
-                    <a-select-option v-for="(m,index) in majors" :key="index" :value="m.majorName">{{ m.majorName }}</a-select-option>
-                  </a-select>
-                </a-form-item>
-              </a-col>
-            </template>
-            <a-col :md="23" :sm="24">
-              <span class="table-page-search-submitButtons" style="float:right; overflow:hidden">
+            <a-col :md="8" :sm="24">
+              <a-form-item label="管理员姓名">
+                <a-input v-model.number="queryParam.username" placeholder=""/>
+              </a-form-item>
+            </a-col>
+            <a-col :md="8" :sm="24">
+              <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
                 <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
                 <a-button style="margin-left: 8px" @click="queryReset">重置</a-button>
               </span>
@@ -63,12 +52,8 @@
         :isdisabled="isdisabled"
         :loading="confirmLoading"
         :model="mdl"
-        :colleges="colleges"
-        :majors="majors"
-        :classes="classes"
         @cancel="handleCancel"
         @ok="handleOk"
-        @selectMajor="selectMajor"
       />
       <step-by-step-modal ref="modal" @ok="handleOk"/>
     </a-card>
@@ -78,38 +63,27 @@
 <script>
 import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
-
 import StepByStepModal from './modules/StepByStepModal'
-import CreateForm from './modules/ClassCreateForm'
-import { getCollege } from '@/api/college'
-import { getClassesByCollege, getClassInfo, updateClass, addClass } from '@/api/classes'
-import { getMajorByCollegeName } from '@/api/major'
+import CreateForm from './modules/AdminCreateForm'
+import { getAdminInfo, updateAdmin, addAdmin } from '@/api/admin'
 
-const columns = [
+const noticecolumns = [
   {
     title: '编号',
-    dataIndex: 'id',
-    scopedSlots: { customRender: 'id' }
+    dataIndex: 'id'
   },
   {
-    title: '班级名称',
-    dataIndex: 'name',
-    scopedSlots: { customRender: 'name' }
+    title: '标题',
+    dataIndex: 'title'
   },
   {
-    title: '学院',
-    dataIndex: 'college',
-    scopedSlots: { customRender: 'college' }
+    title: '发布时间',
+    dataIndex: 'createdTime'
   },
   {
-    title: '专业',
-    dataIndex: 'major',
-    scopedSlots: { customRender: 'major' }
-  },
-  {
-    title: '学生人数',
-    dataIndex: 'studentNum',
-    scopedSlots: { customRender: 'studentNum' }
+    title: '发布人',
+    dataIndex: 'createdName',
+    scopedSlots: { customRender: 'createdName' }
   },
   {
     title: '操作',
@@ -130,19 +104,21 @@ export default {
     StepByStepModal
   },
   data () {
-    this.columns = columns
+    this.columns = noticecolumns
     return {
       // create model
       visible: false,
       confirmLoading: false,
       mdl: null,
+      // 高级搜索 展开/关闭
+      advanced: false,
       // 查询参数
       queryParam: {
         classes: ''
       },
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
-        return getClassInfo(parameter, this.queryParam)
+        return getAdminInfo(parameter, this.queryParam)
           .then(res => {
             if (res.data.list.length === 0) {
               this.$message.warning('未查找到匹配用户')
@@ -153,9 +129,7 @@ export default {
       disabled: true,
       majordisabled: true,
       isdisabled: true,
-      colleges: [],
-      classes: [],
-      majors: []
+      modelVisible: false
     }
   },
   filters: {
@@ -169,7 +143,6 @@ export default {
   created () {
   },
   mounted () {
-    this.getCollege()
   },
   computed: {
     rowSelection () {
@@ -180,6 +153,18 @@ export default {
     }
   },
   methods: {
+    fileChange (event) {
+      if (event.file.status === 'done') {
+        if (event.file.response.code === 200) {
+          // 刷新表格
+          this.$refs.table.refresh()
+          this.modelVisible = false
+          this.$message.success('添加成功')
+        } else {
+          this.$message.error(event.file.response.message)
+        }
+      }
+    },
     handleOpenModel () {
       this.modelVisible = true
     },
@@ -188,39 +173,13 @@ export default {
       this.disabled = true
       this.majordisabled = true
     },
-    // 鼠标点击根据学院ID来查找该学院下的班级
-    selectClasses (value) {
-      this.queryParam.classes = ''
-      getClassesByCollege(value).then(res => {
-        this.classes = res.data
-        this.disabled = false
-      })
-    },
-    selectMajor (value) {
-      this.queryParam.major = ''
-      getMajorByCollegeName(value).then(res => {
-        this.majors = res.data
-        this.majordisabled = false
-      })
-    },
-    getCollege () {
-      getCollege().then(res => {
-        this.colleges = res.data
-      })
-    },
     handleAdd () {
       this.mdl = null
       this.isdisabled = false
-      this.classes = []
-      this.majors = []
       this.visible = true
     },
     handleEdit (record) {
-      this.isdisabled = true
-      this.classes = []
       this.mdl = { ...record }
-      this.selectMajor(this.mdl.college)
-      this.selectClasses(this.mdl.major)
       this.visible = true
     },
     handleOk (isdisabled) {
@@ -230,7 +189,7 @@ export default {
       form.validateFields((errors, values) => {
         if (!errors) {
           if (isdisabled === true) {
-            updateClass(form.getFieldsValue()).then(res => {
+            updateAdmin(form.getFieldsValue()).then(res => {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
@@ -241,7 +200,7 @@ export default {
               this.$message.info('修改成功')
             })
           } else {
-            addClass(form.getFieldsValue()).then(res => {
+            addAdmin(form.getFieldsValue()).then(res => {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
@@ -258,17 +217,10 @@ export default {
       })
     },
     handleCancel () {
+      this.isdisabled = true
       this.visible = false
-
       const form = this.$refs.createModal.form
       form.resetFields() // 清理表单数据（可不做）
-    },
-    handleSub (record) {
-      if (record.status !== 0) {
-        this.$message.info(`${record.no} 订阅成功`)
-      } else {
-        this.$message.error(`${record.no} 订阅失败，规则已关闭`)
-      }
     },
     onSelectChange (selectedRowKeys, selectedRows) {
       this.selectedRowKeys = selectedRowKeys

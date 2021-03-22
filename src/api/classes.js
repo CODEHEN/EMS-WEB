@@ -14,3 +14,19 @@ export function getClassInfo (parameter, pageinfo) {
     data: pageinfo
   })
 }
+
+export function updateClass (classes) {
+  return request({
+    url: '/classes',
+    method: 'put',
+    data: classes
+  })
+}
+
+export function addClass (classes) {
+  return request({
+    url: '/classes',
+    method: 'post',
+    data: classes
+  })
+}
