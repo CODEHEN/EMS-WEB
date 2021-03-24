@@ -22,6 +22,7 @@ export default {
     'menu.list.card-list': 'Card List',
     'menu.list.search-list': 'Search List',
     'menu.list.notice': 'Notice Management',
+    'menu.list.reward_punishment': 'Reward_Punishment Management',
     'menu.list.search-list.projects': 'Search List(projects)',
     'menu.list.search-list.applications': 'Search List(applications)',
     'menu.permission': 'Permission Management',

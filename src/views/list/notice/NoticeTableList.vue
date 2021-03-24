@@ -5,13 +5,19 @@
         <a-form layout="inline">
           <a-row :gutter="48">
             <a-col :md="8" :sm="24">
-              <a-form-item label="管理员编号">
-                <a-input v-model.number="queryParam.number" placeholder=""/>
+              <a-form-item label="发布管理员">
+                <a-select placeholder="请选择" v-model="queryParam.createdId">
+                  <a-select-option v-for="a in admin" :key="a.id" :value="a.id">{{ a.username }}</a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24">
-              <a-form-item label="管理员姓名">
-                <a-input v-model.number="queryParam.username" placeholder=""/>
+              <a-form-item label="发布时间">
+                <a-date-picker
+                  format="YYYY-MM-DD HH:mm:ss"
+                  @change="onChange"
+                  show-time
+                  placeholder="Select Time"/>
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24">
@@ -41,9 +47,13 @@
       >
         <span slot="action" slot-scope="text, record">
           <template>
-            <a @click="handleEdit(record)">修改</a>
+            <a @click="handleEdit(record)">删除</a>
           </template>
         </span>
+
+        <p slot="expandedRowRender" slot-scope="record" style="margin: 0">
+          通知内容：{{ record.content }}
+        </p>
       </s-table>
 
       <create-form
@@ -63,11 +73,13 @@
 <script>
 import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
-import StepByStepModal from './modules/StepByStepModal'
-import CreateForm from './modules/AdminCreateForm'
-import { getAdminInfo, updateAdmin, addAdmin } from '@/api/admin'
+import StepByStepModal from '../modules/StepByStepModal'
+import CreateForm from './NoticeCreateForm'
+import { getAdmin } from '@/api/admin'
+import { getNotice, addNotice, delNotice } from '@/api/notice'
+import store from '@/store'
 
-const noticecolumns = [
+const columns = [
   {
     title: '编号',
     dataIndex: 'id'
@@ -77,13 +89,12 @@ const noticecolumns = [
     dataIndex: 'title'
   },
   {
-    title: '发布时间',
-    dataIndex: 'createdTime'
+    title: '创建人ID',
+    dataIndex: 'createdId'
   },
   {
-    title: '发布人',
-    dataIndex: 'createdName',
-    scopedSlots: { customRender: 'createdName' }
+    title: '发布时间',
+    dataIndex: 'createdTime'
   },
   {
     title: '操作',
@@ -104,7 +115,7 @@ export default {
     StepByStepModal
   },
   data () {
-    this.columns = noticecolumns
+    this.columns = columns
     return {
       // create model
       visible: false,
@@ -118,10 +129,10 @@ export default {
       },
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
-        return getAdminInfo(parameter, this.queryParam)
+        return getNotice(parameter, this.queryParam)
           .then(res => {
             if (res.data.list.length === 0) {
-              this.$message.warning('未查找到匹配用户')
+              this.$message.warning('未查找到匹配目标')
             }
             return res.data
           })
@@ -129,7 +140,8 @@ export default {
       disabled: true,
       majordisabled: true,
       isdisabled: true,
-      modelVisible: false
+      modelVisible: false,
+      admin: []
     }
   },
   filters: {
@@ -141,6 +153,9 @@ export default {
     }
   },
   created () {
+    getAdmin().then(res => {
+      this.admin = res.data
+    })
   },
   mounted () {
   },
@@ -168,6 +183,9 @@ export default {
     handleOpenModel () {
       this.modelVisible = true
     },
+    onChange (value, dateString) {
+      this.queryParam.createdTime = dateString
+    },
     queryReset () {
       this.queryParam = {}
       this.disabled = true
@@ -179,17 +197,21 @@ export default {
       this.visible = true
     },
     handleEdit (record) {
-      this.mdl = { ...record }
-      this.visible = true
+      delNotice(record.id).then(res => {
+        if (res.code === 200) {
+          this.$message.info(res.message)
+        }
+        // 刷新表格
+        this.$refs.table.refresh()
+      })
     },
-    handleOk (isdisabled) {
-      console.log(isdisabled)
+    handleOk () {
       const form = this.$refs.createModal.form
       this.confirmLoading = true
       form.validateFields((errors, values) => {
         if (!errors) {
-          if (isdisabled === true) {
-            updateAdmin(form.getFieldsValue()).then(res => {
+          form.setFieldsValue({ 'createdId': store.getters.userInfo.id })
+            addNotice(form.getFieldsValue()).then(res => {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
@@ -197,20 +219,8 @@ export default {
               // 刷新表格
               this.$refs.table.refresh()
 
-              this.$message.info('修改成功')
+              this.$message.info('发布成功')
             })
-          } else {
-            addAdmin(form.getFieldsValue()).then(res => {
-              this.visible = false
-              this.confirmLoading = false
-              // 重置表单数据
-              form.resetFields()
-              // 刷新表格
-              this.$refs.table.refresh()
-
-              this.$message.info('添加成功')
-            })
-          }
         } else {
           this.confirmLoading = false
         }

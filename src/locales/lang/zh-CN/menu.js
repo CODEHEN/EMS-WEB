@@ -22,6 +22,7 @@ export default {
     'menu.list.card-list': '卡片列表',
     'menu.list.search-list': '搜索列表',
     'menu.list.notice': '公告管理',
+    'menu.list.reward_punishment': '奖惩管理',
     'menu.list.search-list.projects': '搜索列表（项目）',
     'menu.list.search-list.applications': '搜索列表（应用）',
     'menu.permission': '权限管理',

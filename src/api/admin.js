@@ -95,3 +95,10 @@ export function addAdmin (adminInfo) {
     data: adminInfo
   })
 }
+
+export function getAdmin () {
+  return request({
+    url: '/admin',
+    method: 'get'
+  })
+}

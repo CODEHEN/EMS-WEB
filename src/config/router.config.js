@@ -164,8 +164,14 @@ export const asyncRouterMap = [
           {
             path: '/public/notice',
             name: 'Notice',
-            component: () => import('../views/list/search/Article'),
+            component: () => import('../views/list/notice/NoticeTableList'),
             meta: { title: 'menu.list.notice', permission: ['admin'] }
+          },
+          {
+            path: '/public/reward_punishment',
+            name: 'Reward_Punishment',
+            component: () => import('../views/list/reward_punishment/Reward_PunishmentTableList'),
+            meta: { title: 'menu.list.reward_punishment', permission: ['admin'] }
           },
           {
             path: '/list/search/project',
