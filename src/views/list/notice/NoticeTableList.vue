@@ -89,8 +89,8 @@ const columns = [
     dataIndex: 'title'
   },
   {
-    title: '创建人ID',
-    dataIndex: 'createdId'
+    title: '发布人',
+    dataIndex: 'createdName'
   },
   {
     title: '发布时间',

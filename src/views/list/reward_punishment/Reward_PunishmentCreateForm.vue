@@ -9,14 +9,17 @@
   >
     <a-spin :spinning="loading">
       <a-form :form="form" v-bind="formLayout">
-        <a-form-item label="创建人ID" v-show="false">
-          <a-input v-decorator="['createdId']"/>
+        <a-form-item label="姓名">
+          <a-input v-decorator="['name']"/>
         </a-form-item>
-        <a-form-item label="通知标题">
-          <a-input v-decorator="['title', {rules: [{required: true, message: '请输入通知标题'}]}]" />
-        </a-form-item>
-        <a-form-item label="通知内容">
+        <a-form-item label="内容">
           <a-input v-decorator="['content', {rules: [{required: true, message: '请输入通知内容 '}]}]" type="textarea" :autosize="{ minRows: 10, maxRows: 25}" />
+        </a-form-item>
+        <a-form-item label="类型">
+          <a-select placeholder="请选择" v-decorator="['type', {rules: [{required: true, message: '请选择'}]}]">
+            <a-select-option value="0">处分</a-select-option>
+            <a-select-option value="1">奖项</a-select-option>
+          </a-select>
         </a-form-item>
       </a-form>
     </a-spin>
@@ -27,7 +30,7 @@
 import pick from 'lodash.pick'
 
 // 表单字段
-const fields = ['title', 'content', 'createdId']
+const fields = ['name', 'content', 'createdId']
 
 export default {
   props: {

@@ -5,19 +5,21 @@
         <a-form layout="inline">
           <a-row :gutter="48">
             <a-col :md="8" :sm="24">
-              <a-form-item label="发布管理员">
-                <a-select placeholder="请选择" v-model="queryParam.createdId">
-                  <a-select-option v-for="a in admin" :key="a.id" :value="a.id">{{ a.username }}</a-select-option>
-                </a-select>
+              <a-form-item label="姓名">
+                <a-auto-complete
+                  v-model="queryParam.name"
+                  :dataSource="dataSource"
+                  placeholder="输入姓名"
+                  @search="onSearch"
+                />
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24">
-              <a-form-item label="发布时间">
-                <a-date-picker
-                  format="YYYY-MM-DD HH:mm:ss"
-                  @change="onChange"
-                  show-time
-                  placeholder="Select Time"/>
+              <a-form-item label="类型">
+                <a-select placeholder="请选择" v-model="queryParam.type">
+                  <a-select-option value="0">处分</a-select-option>
+                  <a-select-option value="1">奖项</a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24">
@@ -51,9 +53,13 @@
           </template>
         </span>
 
-        <p slot="expandedRowRender" slot-scope="record" style="margin: 0">
-          通知内容：{{ record.content }}
-        </p>
+        <span slot="type" slot-scope="text">
+          <a-tag
+            :color="text === '0' ? 'red' : 'green'"
+          >
+            {{ text === '0' ? '处分' : '奖项' }}
+          </a-tag>
+        </span>
       </s-table>
 
       <create-form
@@ -75,9 +81,8 @@ import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
 import StepByStepModal from '../modules/StepByStepModal'
 import CreateForm from './Reward_PunishmentCreateForm'
-import { getAdmin } from '@/api/admin'
-import { getNotice, addNotice, delNotice } from '@/api/notice'
-import store from '@/store'
+import { getRepu, addRepu, delRepu } from '@/api/repu'
+import { getUserName } from '@/api/user'
 
 const columns = [
   {
@@ -85,16 +90,17 @@ const columns = [
     dataIndex: 'id'
   },
   {
-    title: '标题',
-    dataIndex: 'title'
+    title: '姓名',
+    dataIndex: 'name'
   },
   {
-    title: '创建人ID',
-    dataIndex: 'createdId'
+    title: '内容',
+    dataIndex: 'content'
   },
   {
-    title: '发布时间',
-    dataIndex: 'createdTime'
+    title: '类型',
+    dataIndex: 'type',
+    scopedSlots: { customRender: 'type' }
   },
   {
     title: '操作',
@@ -129,7 +135,7 @@ export default {
       },
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
-        return getNotice(parameter, this.queryParam)
+        return getRepu(parameter, this.queryParam)
           .then(res => {
             if (res.data.list.length === 0) {
               this.$message.warning('未查找到匹配目标')
@@ -141,7 +147,8 @@ export default {
       majordisabled: true,
       isdisabled: true,
       modelVisible: false,
-      admin: []
+      type: 0,
+      dataSource: []
     }
   },
   filters: {
@@ -153,9 +160,7 @@ export default {
     }
   },
   created () {
-    getAdmin().then(res => {
-      this.admin = res.data
-    })
+
   },
   mounted () {
   },
@@ -168,6 +173,11 @@ export default {
     }
   },
   methods: {
+    onSearch (searchText) {
+      getUserName(searchText, this.type).then(res => {
+        this.dataSource = res.data
+      })
+    },
     fileChange (event) {
       if (event.file.status === 'done') {
         if (event.file.response.code === 200) {
@@ -197,7 +207,7 @@ export default {
       this.visible = true
     },
     handleEdit (record) {
-      delNotice(record.id).then(res => {
+      delRepu(record.id).then(res => {
         if (res.code === 200) {
           this.$message.info(res.message)
         }
@@ -210,8 +220,7 @@ export default {
       this.confirmLoading = true
       form.validateFields((errors, values) => {
         if (!errors) {
-          form.setFieldsValue({ 'createdId': store.getters.userInfo.id })
-          addNotice(form.getFieldsValue()).then(res => {
+          addRepu(form.getFieldsValue()).then(res => {
             this.visible = false
             this.confirmLoading = false
             // 重置表单数据
@@ -219,7 +228,7 @@ export default {
             // 刷新表格
             this.$refs.table.refresh()
 
-            this.$message.info('发布成功')
+            this.$message.info('保存成功')
           })
         } else {
           this.confirmLoading = false
