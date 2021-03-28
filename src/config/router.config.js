@@ -174,6 +174,50 @@ export const asyncRouterMap = [
             meta: { title: 'menu.list.reward_punishment', permission: ['admin'] }
           },
           {
+            path: '/public/teach_build_classroom',
+            name: 'Teach_Build_Room',
+            component: () => import('../views/list/teach_build_classroom/TeachBuildRoom'),
+            meta: { title: 'menu.list.teach_build_classroom', permission: ['admin'] }
+          },
+          {
+            path: '/list/search/project',
+            name: 'SearchProjects',
+            component: () => import('../views/list/search/Projects'),
+            meta: { title: 'menu.list.search-list.projects', permission: ['table'] }
+          },
+          {
+            path: '/list/search/application',
+            name: 'SearchApplications',
+            component: () => import('../views/list/search/Applications'),
+            meta: { title: 'menu.list.search-list.applications', permission: ['table'] }
+          }
+        ]
+      },
+      {
+        path: '/course',
+        name: 'course',
+        component: RouteView,
+        meta: { title: 'menu.course', icon: 'profile', permission: ['admin'] },
+        children: [
+          {
+            path: '/course/info',
+            name: 'Course',
+            component: () => import('../views/list/course/CourseInfoTableList'),
+            meta: { title: 'menu.list.courseInfo', permission: ['admin'] }
+          },
+          {
+            path: '/public/reward_punishment',
+            name: 'Reward_Punishment',
+            component: () => import('../views/list/reward_punishment/Reward_PunishmentTableList'),
+            meta: { title: 'menu.list.reward_punishment', permission: ['admin'] }
+          },
+          {
+            path: '/public/teach_build_classroom',
+            name: 'Teach_Build_Room',
+            component: () => import('../views/list/teach_build_classroom/TeachBuildRoom'),
+            meta: { title: 'menu.list.teach_build_classroom', permission: ['admin'] }
+          },
+          {
             path: '/list/search/project',
             name: 'SearchProjects',
             component: () => import('../views/list/search/Projects'),
