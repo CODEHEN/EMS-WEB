@@ -13,7 +13,7 @@
           <a-input v-decorator="['id']"/>
         </a-form-item>
         <a-form-item label="编号">
-          <a-input v-decorator="['number', {rules: [{required: true, min: 12, message: '学号应为12位数字'}]}]" :disabled="isdisabled" />
+          <a-input v-decorator="['number', {rules: [{required: true, pattern: '^[0-9]{10}$', message: '学号应为10位数字'}]}]" :disabled="isdisabled" />
         </a-form-item>
         <a-form-item label="姓名">
           <a-input v-decorator="['username', {rules: [{required: true, min: 2, message: '姓名至少为两个字', trigger: 'blur'}]}]" />

@@ -206,10 +206,10 @@ export const asyncRouterMap = [
             meta: { title: 'menu.list.courseInfo', permission: ['admin'] }
           },
           {
-            path: '/public/reward_punishment',
-            name: 'Reward_Punishment',
-            component: () => import('../views/list/reward_punishment/Reward_PunishmentTableList'),
-            meta: { title: 'menu.list.reward_punishment', permission: ['admin'] }
+            path: '/course/classTask',
+            name: 'ClassTask',
+            component: () => import('../views/list/classTask/ClassTaskTableList'),
+            meta: { title: 'menu.list.classTask', permission: ['admin'] }
           },
           {
             path: '/public/teach_build_classroom',

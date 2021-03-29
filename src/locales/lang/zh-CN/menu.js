@@ -25,6 +25,7 @@ export default {
     'menu.list.reward_punishment': '奖惩管理',
     'menu.list.teach_build_classroom': '教学楼教室管理',
     'menu.list.courseInfo': '课程信息管理',
+    'menu.list.classTask': '开课情况',
     'menu.list.search-list.projects': '搜索列表（项目）',
     'menu.list.search-list.applications': '搜索列表（应用）',
     'menu.permission': '权限管理',

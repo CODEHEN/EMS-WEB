@@ -30,6 +30,7 @@ export default {
     'menu.public': 'Public Management',
     'menu.course': 'Course Management',
     'menu.list.courseInfo': 'CourseInfo Management',
+    'menu.list.classTask': 'ClassTask Management',
     'menu.profile': 'Profile',
     'menu.profile.basic': 'Basic Profile',
     'menu.profile.advanced': 'Advanced Profile',
