@@ -97,7 +97,7 @@ import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
 import StepByStepModal from '../modules/StepByStepModal'
 import CreateForm from './ClassTaskCreateForm'
-import { getClassTask, addCourse, updateCourse } from '@/api/classTask'
+import { getClassTask, addClassTask, updateCourse } from '@/api/classTask'
 import store from '@/store'
 import { getClassesByCollege } from '@/api/classes'
 import { getMajorByCollegeName } from '@/api/major'
@@ -257,6 +257,8 @@ export default {
       this.visible = true
     },
     handleOk (isdisabled) {
+      console.log('a')
+      console.log(isdisabled)
       const form = this.$refs.createModal.form
       this.confirmLoading = true
       form.validateFields((errors, values) => {
@@ -274,7 +276,7 @@ export default {
               this.$message.info('修改成功')
             })
           } else {
-            addCourse(form.getFieldsValue()).then(res => {
+            addClassTask(form.getFieldsValue()).then(res => {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据

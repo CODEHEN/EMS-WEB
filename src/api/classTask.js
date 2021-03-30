@@ -7,3 +7,11 @@ export function getClassTask (parameter, pageinfo) {
     data: pageinfo
   })
 }
+
+export function addClassTask (info) {
+  return request({
+    url: '/course/classTask/add',
+    method: 'post',
+    data: info
+  })
+}

@@ -174,7 +174,7 @@ export default {
   },
   methods: {
     onSearch (searchText) {
-      getUserName(searchText, this.type).then(res => {
+      getUserName(searchText).then(res => {
         this.dataSource = res.data
       })
     },

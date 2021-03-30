@@ -30,3 +30,10 @@ export function delCourse (id) {
     method: 'delete'
   })
 }
+
+export function getCourseName (value) {
+  return request({
+    url: `/course/name?value=${value}`,
+    method: 'get'
+  })
+}
