@@ -55,6 +55,12 @@
         <a-button type="primary" icon="plus" @click="handleAdd">
           新建
         </a-button>
+        <a-select placeholder="请选择" style="width: 200px" @select="semesterSel" :allowClear="true" @change="changeSe">
+          <a-select-option v-for="(semester,index) in semesters" :key="index" :value="semester">{{ semester }}</a-select-option>
+        </a-select>
+        <a-button type="primary" @click="classScheduling" :disabled="semedisabled">
+          排课
+        </a-button>
       </div>
 
       <s-table
@@ -97,7 +103,7 @@ import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
 import StepByStepModal from '../modules/StepByStepModal'
 import CreateForm from './ClassTaskCreateForm'
-import { getClassTask, addClassTask, updateCourse } from '@/api/classTask'
+import { getClassTask, addClassTask, updateCourse, Scheduling, getSemesters } from '@/api/classTask'
 import store from '@/store'
 import { getClassesByCollege } from '@/api/classes'
 import { getMajorByCollegeName } from '@/api/major'
@@ -177,10 +183,12 @@ export default {
       },
       disabled: true,
       isdisabled: true,
-      modelVisible: false,
+      semedisabled: true,
       colleges: [],
       classes: [],
-      majors: []
+      majors: [],
+      semesters: [],
+      semester: ''
     }
   },
   filters: {
@@ -195,6 +203,7 @@ export default {
   },
   mounted () {
     this.getCollege()
+    this.getSemesters()
   },
   computed: {
     rowSelection () {
@@ -205,25 +214,47 @@ export default {
     }
   },
   methods: {
+    getSemesters () {
+      getSemesters().then(res => {
+        this.semesters = res.data
+      })
+    },
     fileChange (event) {
       if (event.file.status === 'done') {
         if (event.file.response.code === 200) {
           // 刷新表格
           this.$refs.table.refresh()
-          this.modelVisible = false
           this.$message.success('添加成功')
         } else {
           this.$message.error(event.file.response.message)
         }
       }
     },
+    classScheduling () {
+      Scheduling(this.semester).then(res => {
+        if (res.code === 200) {
+          this.$message.success(res.message)
+        } else {
+          this.$message.error(res.message)
+        }
+      })
+    },
+    semesterSel (val) {
+      this.semedisabled = false
+      this.semester = val
+    },
+    changeSe (val, op) {
+      if (op === undefined) {
+        this.semedisabled = true
+      } else {
+        this.semedisabled = false
+        this.semester = val
+      }
+    },
     getCollege () {
       getCollege().then(res => {
         this.colleges = res.data
       })
-    },
-    handleOpenModel () {
-      this.modelVisible = true
     },
     onChange (value, dateString) {
       this.queryParam.createdTime = dateString

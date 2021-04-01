@@ -15,3 +15,18 @@ export function addClassTask (info) {
     data: info
   })
 }
+
+export function Scheduling (info) {
+  return request({
+    url: '/course/classScheduling',
+    method: 'post',
+    data: info
+  })
+}
+
+export function getSemesters () {
+  return request({
+    url: '/course/semester',
+    method: 'get'
+  })
+}
