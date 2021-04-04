@@ -16,7 +16,6 @@
                   <a-select-option value="02">学科基础课</a-select-option>
                   <a-select-option value="03">通识教育课</a-select-option>
                   <a-select-option value="04">专业选修课</a-select-option>
-                  <a-select-option value="05">公共选修课</a-select-option>
                 </a-select>
               </a-form-item>
             </a-col>
@@ -209,14 +208,21 @@ export default {
             })
           } else {
             addCourse(form.getFieldsValue()).then(res => {
-              this.visible = false
+              if (res.code === 200) {
+                this.visible = false
+                this.confirmLoading = false
+                // 重置表单数据
+                form.resetFields()
+                // 刷新表格
+                this.$refs.table.refresh()
+                this.$message.info(res.message)
+              } else {
+                this.confirmLoading = false
+                this.$message.info(res.message)
+              }
+            }).catch(error => {
+              console.log(error)
               this.confirmLoading = false
-              // 重置表单数据
-              form.resetFields()
-              // 刷新表格
-              this.$refs.table.refresh()
-
-              this.$message.info('添加成功')
             })
           }
         } else {

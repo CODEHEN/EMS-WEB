@@ -212,39 +212,27 @@ export const asyncRouterMap = [
             meta: { title: 'menu.list.classTask', permission: ['admin'] }
           },
           {
-            path: '/public/teach_build_classroom',
-            name: 'Teach_Build_Room',
-            component: () => import('../views/list/teach_build_classroom/TeachBuildRoom'),
-            meta: { title: 'menu.list.teach_build_classroom', permission: ['admin'] }
-          },
-          {
-            path: '/list/search/project',
-            name: 'SearchProjects',
-            component: () => import('../views/list/search/Projects'),
-            meta: { title: 'menu.list.search-list.projects', permission: ['table'] }
-          },
-          {
-            path: '/list/search/application',
-            name: 'SearchApplications',
-            component: () => import('../views/list/search/Applications'),
-            meta: { title: 'menu.list.search-list.applications', permission: ['table'] }
+            path: '/course/elective',
+            name: 'Elective',
+            component: () => import('../views/list/course/ElectiveCourseInfoTableList'),
+            meta: { title: 'menu.list.ElectiveCourseInfo', permission: ['admin'] }
           }
         ]
       },
 
       // profile
       {
-        path: '/profile',
-        name: 'profile',
+        path: '/schedule',
+        name: 'schedule',
         component: RouteView,
-        redirect: '/profile/basic',
-        meta: { title: 'menu.profile', icon: 'profile', permission: ['profile'] },
+        redirect: '/schedule/semester',
+        meta: { title: 'menu.schedule', icon: 'profile', permission: ['admin'] },
         children: [
           {
-            path: '/profile/basic',
-            name: 'ProfileBasic',
-            component: () => import('@/views/profile/basic'),
-            meta: { title: 'menu.profile.basic', permission: ['profile'] }
+            path: '/schedule/semester',
+            name: 'Semester',
+            component: () => import('@/views/schedule/Semester'),
+            meta: { title: 'menu.schedule.semester', permission: ['admin'] }
           },
           {
             path: '/profile/advanced',

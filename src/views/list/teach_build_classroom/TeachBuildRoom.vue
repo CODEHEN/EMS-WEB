@@ -161,7 +161,6 @@ export default {
               this.$message.warning('未查找到匹配目标')
             }
             this.builds = res.data.list
-            console.log(this.builds)
             return res.data
           })
       },

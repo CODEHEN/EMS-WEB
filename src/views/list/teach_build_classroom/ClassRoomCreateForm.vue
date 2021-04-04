@@ -23,10 +23,6 @@
         <a-form-item label="教室名称" >
           <a-input v-decorator="['classroomname', {rules: [{required: true, message: '请输入学院名称'}]}]" />
         </a-form-item>
-<!--        <a-select placeholder="请选择" v-decorator="['type', {rules: [{required: true, message: '请选择类别'}]}]">-->
-<!--          <a-select-option value="01">01</a-select-option>-->
-<!--          <a-select-option value="02">02</a-select-option>-->
-<!--        </a-select>-->
       </a-form>
     </a-spin>
   </a-modal>

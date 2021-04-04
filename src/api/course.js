@@ -8,6 +8,14 @@ export function getCourse (parameter, pageinfo) {
   })
 }
 
+export function getElectiveCourse (parameter, pageinfo) {
+  return request({
+    url: `/course/elective/info?pageNum=${parameter.pageNum}&pageSize=${parameter.pageSize}`,
+    method: 'post',
+    data: pageinfo
+  })
+}
+
 export function addCourse (courseInfo) {
   return request({
     url: '/course',
@@ -16,9 +24,24 @@ export function addCourse (courseInfo) {
   })
 }
 
+export function addElectiveCourse (courseInfo) {
+  return request({
+    url: '/course/elective',
+    method: 'post',
+    data: courseInfo
+  })
+}
+
 export function updateCourse (courseInfo) {
   return request({
     url: '/course',
+    method: 'put',
+    data: courseInfo
+  })
+}
+export function updateElectiveCourse (courseInfo) {
+  return request({
+    url: '/course/elective',
     method: 'put',
     data: courseInfo
   })

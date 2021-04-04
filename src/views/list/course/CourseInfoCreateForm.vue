@@ -26,7 +26,6 @@
             <a-select-option value="02">学科基础课</a-select-option>
             <a-select-option value="03">通识教育课</a-select-option>
             <a-select-option value="04">专业选修课</a-select-option>
-            <a-select-option value="05">公共选修课</a-select-option>
           </a-select>
         </a-form-item>
       </a-form>

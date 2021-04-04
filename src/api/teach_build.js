@@ -8,6 +8,13 @@ export function getTeachBuildInfo (parameter, pageinfo) {
   })
 }
 
+export function getTeachBuildInfo2 () {
+  return request({
+    url: `/teach_build/info`,
+    method: 'get'
+  })
+}
+
 export function addTeachBuild (buildInfo) {
   return request({
     url: '/teach_build',
