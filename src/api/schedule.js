@@ -7,3 +7,10 @@ export function studentSchedule (info) {
     data: info
   })
 }
+export function classSchedule (info) {
+  return request({
+    url: '/schedule/class',
+    method: 'post',
+    data: info
+  })
+}

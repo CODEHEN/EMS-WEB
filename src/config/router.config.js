@@ -235,6 +235,18 @@ export const asyncRouterMap = [
             meta: { title: 'menu.schedule.semester', permission: ['admin'] }
           },
           {
+            path: '/schedule/teacher',
+            name: 'Teacher',
+            component: () => import('@/views/schedule/Teacher'),
+            meta: { title: 'menu.schedule.teacher', permission: ['admin'] }
+          },
+          {
+            path: '/schedule/class',
+            name: 'Class',
+            component: () => import('@/views/schedule/Class'),
+            meta: { title: 'menu.schedule.class', permission: ['admin'] }
+          },
+          {
             path: '/profile/advanced',
             name: 'ProfileAdvanced',
             component: () => import('@/views/profile/advanced/Advanced'),

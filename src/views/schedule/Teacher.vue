@@ -5,17 +5,24 @@
         <a-form layout="inline">
           <a-row :gutter="48">
             <a-col :md="8" :sm="24">
-              <a-form-item label="学年学期">
-                <a-select
-                  placeholder="请选择"
-                  v-model="queryParam.semester">
-                  <a-select-option v-for="(semester,index) in semesters" :key="index" :value="semester">{{ semester }}</a-select-option>
+              <a-form-item label="学院">
+                <a-select placeholder="请选择" @select="selectMajor" v-model="queryParam.college">
+                  <a-select-option v-for="college in colleges" :key="college.id" :value="college.name">{{ college.name }}</a-select-option>
                 </a-select>
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24">
-              <a-form-item label="学生学号" >
-                <a-input v-model="queryParam.studentNumber" placeholder="请输入学号"/>
+              <a-form-item label="专业">
+                <a-select placeholder="请选择" :disabled="majordisabled" @select="selectClasses" v-model="queryParam.major">
+                  <a-select-option v-for="(m,index) in majors" :key="index" :value="m.majorName">{{ m.majorName }}</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :md="8" :sm="24">
+              <a-form-item label="班级">
+                <a-select placeholder="请选择" :disabled="disabled" v-model="queryParam.classes">
+                  <a-select-option v-for="(c,index) in classes" :key="index" :value="c.name">{{ c.name }}</a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24">
@@ -37,7 +44,8 @@
 import Timetables from 'timetables'
 
 import { studentSchedule } from '@/api/schedule'
-import { getSemesters } from '@/api/classTask'
+import { getMajorByCollegeName } from '@/api/major'
+import { getClassesByCollege } from '@/api/classes'
 
 export default {
 name: 'Semester',
@@ -69,7 +77,10 @@ name: 'Semester',
     Timetable: null,
     queryParam: {},
     advanced: false,
-    semesters: []
+    majors: [],
+    classes: [],
+    disabled: true,
+    majordisabled: true
   }
   },
   created () {
@@ -113,9 +124,18 @@ name: 'Semester',
     queryReset () {
       this.queryParam = {}
     },
-    getSemesters () {
-      getSemesters().then(res => {
-        this.semesters = res.data
+    selectMajor (value) {
+      this.queryParam.major = ''
+      getMajorByCollegeName(value).then(res => {
+        this.majors = res.data
+        this.majordisabled = false
+      })
+    },
+    selectClasses (value) {
+      this.queryParam.classes = ''
+      getClassesByCollege(value).then(res => {
+        this.classes = res.data
+        this.disabled = false
       })
     }
   }

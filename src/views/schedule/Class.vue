@@ -14,11 +14,27 @@
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24">
-              <a-form-item label="学生学号" >
-                <a-input v-model="queryParam.studentNumber" placeholder="请输入学号"/>
+              <a-form-item label="学院">
+                <a-select placeholder="请选择" @select="selectMajor" v-model="queryParam.college">
+                  <a-select-option v-for="college in colleges" :key="college.id" :value="college.name">{{ college.name }}</a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24">
+              <a-form-item label="专业">
+                <a-select placeholder="请选择" :disabled="majordisabled" @select="selectClasses" v-model="queryParam.major">
+                  <a-select-option v-for="(m,index) in majors" :key="index" :value="m.majorName">{{ m.majorName }}</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :md="8" :sm="24">
+              <a-form-item label="班级">
+                <a-select placeholder="请选择" :disabled="disabled" v-model="queryParam.classNo">
+                  <a-select-option v-for="(c,index) in classes" :key="index" :value="c.id">{{ c.name }}</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :md="24" :sm="24">
               <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
                 <a-button type="primary" @click="selectSchedule">查询</a-button>
                 <a-button style="margin-left: 8px" @click="queryReset">重置</a-button>
@@ -36,7 +52,10 @@
 
 import Timetables from 'timetables'
 
-import { studentSchedule } from '@/api/schedule'
+import { classSchedule } from '@/api/schedule'
+import { getMajorByCollegeName } from '@/api/major'
+import { getClassesByCollege } from '@/api/classes'
+import { getCollege } from '@/api/college'
 import { getSemesters } from '@/api/classTask'
 
 export default {
@@ -67,9 +86,16 @@ name: 'Semester',
       palette: ['#ff6633', '#8f8123']
     },
     Timetable: null,
-    queryParam: {},
+    queryParam: {
+      classNo: ''
+    },
+    semesters: [],
     advanced: false,
-    semesters: []
+    colleges: [],
+    majors: [],
+    classes: [],
+    disabled: true,
+    majordisabled: true
   }
   },
   created () {
@@ -89,18 +115,24 @@ name: 'Semester',
       styles: this.styles
     })
     this.getSemesters()
+    this.getCollege()
   },
   methods: {
+    getCollege () {
+      getCollege().then(res => {
+        this.colleges = res.data
+      })
+    },
     selectSchedule () {
       if (this.queryParam.semester === undefined) {
-        this.$message.warning('请输入学期')
+        this.$message.warning('请选择学期')
         return
       }
-      if (this.queryParam.studentNumber === undefined) {
-        this.$message.warning('请输入学号')
+      if (this.queryParam.classNo === '') {
+        this.$message.warning('请选择班级')
         return
       }
-      studentSchedule(this.queryParam).then(res => {
+      classSchedule(this.queryParam).then(res => {
         if (res.code === 200) {
           this.timetables = res.data
           console.log(this.timetables)
@@ -112,6 +144,20 @@ name: 'Semester',
     },
     queryReset () {
       this.queryParam = {}
+    },
+    selectMajor (value) {
+      this.queryParam.major = ''
+      getMajorByCollegeName(value).then(res => {
+        this.majors = res.data
+        this.majordisabled = false
+      })
+    },
+    selectClasses (value) {
+      this.queryParam.classNo = ''
+      getClassesByCollege(value).then(res => {
+        this.classes = res.data
+        this.disabled = false
+      })
     },
     getSemesters () {
       getSemesters().then(res => {

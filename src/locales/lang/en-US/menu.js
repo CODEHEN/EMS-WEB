@@ -37,6 +37,8 @@ export default {
     'menu.profile.basic': 'Basic Profile',
     'menu.profile.advanced': 'Advanced Profile',
     'menu.schedule.semester': 'Semester Schedule',
+    'menu.schedule.teacher': 'Teacher Schedule',
+    'menu.schedule.class': 'Class Schedule',
     'menu.result': 'Result',
     'menu.result.success': 'Success',
     'menu.result.fail': 'Fail',

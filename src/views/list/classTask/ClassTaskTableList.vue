@@ -6,7 +6,9 @@
           <a-row :gutter="48">
             <a-col :md="8" :sm="24">
               <a-form-item label="学期">
-                <a-input v-model="queryParam.semester" placeholder=""/>
+                <a-select>
+                  <a-select-option v-for="(semester,index) in semesters" :key="index" :value="semester">{{ semester }}</a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24">
@@ -138,6 +140,10 @@ const columns = [
   {
     title: '课程名称',
     dataIndex: 'courseName'
+  },
+  {
+    title: '周次数',
+    dataIndex: 'weeksNumber'
   },
   {
     title: '授课教师',
