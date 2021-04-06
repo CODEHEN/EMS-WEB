@@ -39,6 +39,7 @@ export default {
     'menu.schedule.semester': 'Semester Schedule',
     'menu.schedule.teacher': 'Teacher Schedule',
     'menu.schedule.class': 'Class Schedule',
+    'menu.schedule.classroom': 'ClassRoom Schedule',
     'menu.result': 'Result',
     'menu.result.success': 'Success',
     'menu.result.fail': 'Fail',

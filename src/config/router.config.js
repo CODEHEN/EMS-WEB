@@ -247,10 +247,10 @@ export const asyncRouterMap = [
             meta: { title: 'menu.schedule.class', permission: ['admin'] }
           },
           {
-            path: '/profile/advanced',
-            name: 'ProfileAdvanced',
-            component: () => import('@/views/profile/advanced/Advanced'),
-            meta: { title: 'menu.profile.advanced', permission: ['profile'] }
+            path: '/schedule/classroom',
+            name: 'ClassRoom',
+            component: () => import('@/views/schedule/ClassRoom'),
+            meta: { title: 'menu.schedule.classroom', permission: ['admin'] }
           }
         ]
       },

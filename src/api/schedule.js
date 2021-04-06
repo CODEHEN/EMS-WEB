@@ -14,3 +14,17 @@ export function classSchedule (info) {
     data: info
   })
 }
+export function teacherSchedule (info) {
+  return request({
+    url: '/schedule/teacher',
+    method: 'post',
+    data: info
+  })
+}
+export function classRoomSchedule (info) {
+  return request({
+    url: '/schedule/classroom',
+    method: 'post',
+    data: info
+  })
+}

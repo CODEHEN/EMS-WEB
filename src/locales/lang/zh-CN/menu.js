@@ -39,6 +39,7 @@ export default {
     'menu.schedule.semester': '学期课表',
     'menu.schedule.teacher': '教师课表',
     'menu.schedule.class': '班级课表',
+    'menu.schedule.classroom': '教室课表',
     'menu.result': '结果页',
     'menu.result.success': '成功页',
     'menu.result.fail': '失败页',
