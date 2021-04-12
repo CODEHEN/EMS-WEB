@@ -21,25 +21,19 @@ export const asyncRouterMap = [
         name: 'dashboard',
         redirect: '/dashboard/workplace',
         component: RouteView,
-        meta: { title: 'menu.dashboard', keepAlive: true, icon: bxAnaalyse, permission: ['student', 'admin'] },
+        meta: { title: 'menu.dashboard', keepAlive: true, icon: bxAnaalyse, permission: ['student', 'admin', 'teacher'] },
         children: [
           {
             path: '/dashboard/analysis/:pageNo([1-9]\\d*)?',
             name: 'Analysis',
             component: () => import('@/views/dashboard/Analysis'),
-            meta: { title: 'menu.dashboard.analysis', keepAlive: false, permission: ['student'] }
-          },
-          // 外部链接
-          {
-            path: 'https://www.baidu.com/',
-            name: 'Monitor',
-            meta: { title: 'menu.dashboard.monitor', target: '_blank' }
+            meta: { title: 'menu.dashboard.analysis', keepAlive: false, permission: ['student', 'teacher'] }
           },
           {
             path: '/dashboard/workplace',
             name: 'Workplace',
             component: () => import('@/views/dashboard/Workplace'),
-            meta: { title: 'menu.dashboard.workplace', keepAlive: true, permission: ['student', 'admin'] }
+            meta: { title: 'menu.dashboard.workplace', keepAlive: true, permission: ['student', 'teacher', 'admin'] }
           }
         ]
       },
@@ -219,7 +213,27 @@ export const asyncRouterMap = [
           }
         ]
       },
-
+      {
+        path: '/teacher',
+        name: 'TeacherCourse',
+        component: RouteView,
+        redirect: '/teacher/course',
+        meta: { title: 'menu.teacherTask', icon: 'profile', permission: ['teacher'] },
+        children: [
+          {
+            path: '/teacher/course',
+            name: 'Course',
+            component: () => import('@/views/list/teacher/Course'),
+            meta: { title: 'menu.teacher.course', permission: ['teacher'] }
+          },
+          {
+            path: '/teacher/class',
+            name: 'Class',
+            component: () => import('@/views/schedule/Class'),
+            meta: { title: 'menu.teacher.class', permission: ['teacher'] }
+          }
+          ]
+      },
       // profile
       {
         path: '/schedule',

@@ -8,7 +8,10 @@
               <a-form-item label="学年学期">
                 <a-select
                   placeholder="请选择"
-                  v-model="queryParam.semester">
+                  v-model="queryParam.semester"
+                  v-decorator="[
+                    { rules: [{ required: true, message: 'Please input your username!' }] },
+                  ]">
                   <a-select-option v-for="(semester,index) in semesters" :key="index" :value="semester">{{ semester }}</a-select-option>
                 </a-select>
               </a-form-item>

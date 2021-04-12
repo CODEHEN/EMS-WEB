@@ -9,7 +9,9 @@
           <div class="content-title">
             {{ timeFix }}，{{ user.username }}<span class="welcome-text">，{{ welcome }}</span>
           </div>
-          <div>{{ user.classes }} | {{ user.college }} - {{ user.major }}</div>
+          <div v-if="role === 'student'">{{ user.classes }} | {{ user.college }} - {{ user.major }}</div>
+          <div v-if="role === 'teacher'">{{ user.college }} - {{ user.number }}</div>
+          <div v-if="role === 'admin'">{{ user.classes }} | {{ user.college }} - {{ user.major }}</div>
         </div>
       </div>
     </template>
@@ -71,6 +73,8 @@ import { timeFix } from '@/utils/util'
 import { mapState } from 'vuex'
 import { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
 import Timetables from 'timetables'
+import { teacherSchedule } from '@/api/schedule'
+import store from '@/store'
 
 export default {
   name: 'Workplace',
@@ -85,30 +89,30 @@ export default {
       loading: true,
       // data
       timetables: [
-        ['软件开发项目实训（JAVA开发方向）\n' +
-        '甄春成\n' +
-        '9(周)' +
-        '知行楼502Web前端开发技术实验（训）室', '', '', '毛概', '选修'],
-        ['信号与系统', '', '模拟电子技术基础', '', '模拟电子技术基础'],
-        ['大学体育(Ⅳ)', '形势与政策(Ⅳ)', '', '', '电路、信号与系统实验'],
-        ['', '', '', '', '电装实习'],
-        ['', '', '数据结构与算法分析', '信号与系统', '']
+        ['', '', '', '', ''],
+        ['', '', '', '', ''],
+        ['', '', '', '', ''],
+        ['', '', '', '', ''],
+        ['', '', '', '', ''],
+        ['', '', '', '', ''],
+        ['', '', '', '', '']
       ],
       timetableType: [
-        [{ index: '第一二节', name: '8:20-10:00' }, 1],
-        [{ index: '第三四节', name: '10:20-12:00' }, 1],
-        [{ index: '第五六节', name: '14:00-15:40' }, 1],
-        [{ index: '第七八节', name: '15:50-17:30' }, 1],
-        [{ index: '第九十节', name: '19:00-20:30' }, 1]
+        [{ index: '1', name: '8:30' }, 1],
+        [{ index: '2', name: '8:30' }, 1],
+        [{ index: '3', name: '8:30' }, 1],
+        [{ index: '4', name: '8:30' }, 1],
+        [{ index: '5', name: '8:30' }, 1]
       ],
-      week: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+      week: ['一', '二', '三', '四', '五', '六', '日'],
       highlightWeek: new Date().getDay(),
       styles: {
-        Gheight: 180,
+        Gheight: 160,
         leftHandWidth: 80,
         palette: ['#ff6633', '#8f8123']
       },
-      Timetable: null
+      Timetable: null,
+      queryParam: {}
     }
   },
   computed: {
@@ -118,6 +122,9 @@ export default {
     }),
     userInfo () {
       return this.$store.getters.userInfo
+    },
+    role () {
+      return this.$store.getters.roles[0]
     }
   },
   created () {
@@ -125,17 +132,22 @@ export default {
     this.avatar = this.userInfo.avatar
   },
   mounted () {
-    this.Timetable = new Timetables({
-      el: '#coursesTable',
-      timetables: this.timetables,
-      week: this.week,
-      timetableType: this.timetableType,
-      highlightWeek: this.highlightWeek,
-      gridOnClick: function (e) {
-        alert(e.name + '  ' + e.week + ', 第' + e.index + '节课, 课长' + e.length + '节')
-        console.log(e)
-      },
-      styles: this.styles
+    this.queryParam.teacherName = store.getters.userInfo.username
+    teacherSchedule(this.queryParam).then(res => {
+      if (res.code === 200) {
+        this.timetables = res.data
+        this.Timetable = new Timetables({
+          el: '#coursesTable',
+          timetables: this.timetables,
+          week: this.week,
+          timetableType: this.timetableType,
+          highlightWeek: this.highlightWeek,
+          gridOnClick: function (e) {
+            alert(e.name + '  ' + e.week + ', 第' + e.index + '节课, 课长' + e.length + '节')
+          },
+          styles: this.styles
+        })
+      }
     })
   },
   methods: {
@@ -147,20 +159,103 @@ export default {
   @import "./Workplace.less";
 
   #coursesTable {
+    padding: 15px 10px;
     background-color: white;
-    .Courses-leftHand {
-      text-align: center;
-      line-height: 6;
-    }
-    .Courses-content {
-      li {
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-      }
-    }
+  }
 
+  .Courses-head {
+    background-color: #edffff;
+  }
+
+  .Courses-head > div {
+    text-align: center;
+    font-size: 14px;
+    line-height: 28px;
+  }
+
+  .left-hand-TextDom, .Courses-head {
+    background-color: #f2f6f7;
+  }
+
+  .Courses-leftHand {
+    background-color: #f2f6f7;
+    font-size: 12px;
+  }
+
+  .Courses-leftHand .left-hand-index {
+    color: #9c9c9c;
+    margin-bottom: 4px !important;
+  }
+
+  .Courses-leftHand .left-hand-name {
+    color: #666;
+  }
+
+  .Courses-leftHand p {
+    text-align: center;
+    font-weight: 900;
+  }
+
+  .Courses-head > div {
+    border-left: none !important;
+  }
+
+  .Courses-leftHand > div {
+    padding-top: 5px;
+    border-bottom: 1px dashed rgb(219, 219, 219);
+    display: flex;
+    direction: inherit;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .Courses-leftHand > div:last-child {
+    border-bottom: none !important;
+  }
+
+  .left-hand-TextDom, .Courses-head {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .Courses-content > ul {
+    border-bottom: 1px dashed rgb(219, 219, 219);
+    box-sizing: border-box;
+  }
+
+  .Courses-content > ul:last-child {
+    border-bottom: none !important;
+  }
+
+  .highlight-week {
+    color: #02a9f5 !important;
+  }
+
+  .Courses-content li {
+    text-align: center;
+    color: #666666;
+    border-radius: 4px;
+    font-size: 14px;
+    flex-direction: column;
+    justify-content: center;
+    display: flex;
+  }
+
+  .Courses-content li span {
+    padding: 6px 2px;
+    box-sizing: border-box;
+    line-height: 18px;
+    border-radius: 4px;
+    white-space: normal;
+    word-break: break-all;
+    cursor: pointer;
+  }
+
+  .grid-active {
+    z-index: 9999;
+  }
+
+  .grid-active span {
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
   }
   .project-list {
 

@@ -1,6 +1,6 @@
 <template>
   <page-header-wrapper>
-    <a-card :bordered="false">
+    <a-card :bordered="false" v-if="switchClassInfo">
       <div class="table-page-search-wrapper">
         <a-form layout="inline">
           <a-row :gutter="48">
@@ -16,7 +16,7 @@
                 <a-input v-model="queryParam.courseName" placeholder=""/>
               </a-form-item>
             </a-col>
-            <template v-if="advanced">
+            <template>
               <a-col :md="8" :sm="24">
                 <a-form-item label="课程类型">
                   <a-select placeholder="请选择" v-model="queryParam.courseAttr">
@@ -32,42 +32,15 @@
                   <a-input v-model="queryParam.className" placeholder=""/>
                 </a-form-item>
               </a-col>
-              <a-col :md="8" :sm="24">
-                <a-form-item label="授课教师">
-                  <a-input v-model="queryParam.teacherName" placeholder=""/>
-                </a-form-item>
-              </a-col>
             </template>
-            <a-col :md="!advanced && 8 || 24" :sm="24">
-              <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
+            <a-col :md="16" :sm="24">
+              <span class="table-page-search-submitButtons" style="float: right">
                 <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
                 <a-button style="margin-left: 8px" @click="queryReset">重置</a-button>
-                <a @click="toggleAdvanced" style="margin-left: 8px">
-                  {{ advanced ? '收起' : '展开' }}
-                  <a-icon :type="advanced ? 'up' : 'down'"/>
-                </a>
               </span>
             </a-col>
           </a-row>
         </a-form>
-      </div>
-
-      <div class="table-operator">
-        <a-button type="primary" icon="plus" @click="handleAdd">
-          新建
-        </a-button>
-        <a-select
-          placeholder="请选择"
-          style="width: 200px"
-          @select="semesterSel"
-          :allowClear="true"
-          @change="changeSe"
-          v-model="que.semester">
-          <a-select-option v-for="(semester,index) in semesters" :key="index" :value="semester">{{ semester }}</a-select-option>
-        </a-select>
-        <a-button type="primary" @click="classScheduling" :disabled="semedisabled">
-          排课
-        </a-button>
       </div>
 
       <s-table
@@ -81,26 +54,47 @@
       >
         <span slot="action" slot-scope="text, record">
           <template>
-            <a @click="handleEdit(record)"> 修改</a>
+            <a @click="ClassInfo(record)"> 班级信息</a>
           </template>
         </span>
       </s-table>
+    </a-card>
+    <a-card :bordered="false" v-if="!switchClassInfo">
+      <div class="table-page-search-wrapper">
+        <a-form layout="inline">
+          <a-row :gutter="48">
+            <a-col :md="8" :sm="24">
+              <a-form-item label="学生编号">
+                <a-input v-model.number="queryParam.number" placeholder=""/>
+              </a-form-item>
+            </a-col>
+            <a-col :md="8" :sm="24">
+              <a-form-item label="学生姓名">
+                <a-input v-model.number="queryParam.username" placeholder=""/>
+              </a-form-item>
+            </a-col>
+            <a-col :md="switchClassInfo?16:8" :sm="24">
+              <span class="table-page-search-submitButtons" style="float: right">
+                <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
+                <a-button style="margin-left: 8px" @click="queryReset">重置</a-button>
+                <a-button style="margin-left: 8px" @click="back">返回</a-button>
+              </span>
+            </a-col>
+          </a-row>
+        </a-form>
+      </div>
 
-      <create-form
-        ref="createModal"
-        :visible="visible"
-        :isdisabled="isdisabled"
-        :loading="confirmLoading"
-        :model="mdl"
-        :colleges="colleges"
-        :majors="majors"
-        :classes="classes"
-        @cancel="handleCancel"
-        @ok="handleOk"
-        @selectClasses="selectClasses"
-        @selectMajor="selectMajor"
-      />
-      <step-by-step-modal ref="modal" @ok="handleOk"/>
+      <s-table
+        :key="switchClassInfo"
+        ref="table"
+        size="default"
+        rowKey="number"
+        :columns="ClassInfoColumns"
+        :data="loadDataClass"
+        :alert="false"
+        showPagination="auto"
+      >
+      </s-table>
     </a-card>
   </page-header-wrapper>
 </template>
@@ -108,13 +102,9 @@
 <script>
 import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
-import StepByStepModal from '../modules/StepByStepModal'
-import CreateForm from './ClassTaskCreateForm'
-import { getClassTask, addClassTask, updateCourse, Scheduling, getSemesters } from '@/api/classTask'
-import store from '@/store'
+import { getClassTask, Scheduling, getSemesters } from '@/api/classTask'
 import { getClassesByCollege } from '@/api/classes'
-import { getMajorByCollegeName } from '@/api/major'
-import { getCollege } from '@/api/college'
+import { getStudentInfo } from '@/api/admin'
 
 const columns = [
   {
@@ -146,10 +136,6 @@ const columns = [
     dataIndex: 'weeksNumber'
   },
   {
-    title: '授课教师',
-    dataIndex: 'teacherName'
-  },
-  {
     title: '课程类型',
     dataIndex: 'courseAttr'
   },
@@ -159,7 +145,49 @@ const columns = [
     scopedSlots: { customRender: 'action' }
   }
 ]
-
+const ClassInfoColumns = [
+  {
+    title: '学号',
+    width: 140,
+    dataIndex: 'number',
+    scopedSlots: { customRender: 'usernumber' }
+  },
+  {
+    title: '姓名',
+    width: 80,
+    dataIndex: 'username',
+    scopedSlots: { customRender: 'username' }
+  },
+  {
+    title: '班级',
+    width: 130,
+    dataIndex: 'classes'
+  },
+  {
+    title: '性别',
+    width: 80,
+    dataIndex: 'sex',
+    scopedSlots: { customRender: 'sex' }
+  },
+  {
+    title: '电话号码',
+    dataIndex: 'phone'
+  },
+  {
+    title: '邮箱',
+    dataIndex: 'email',
+    scopedSlots: { customRender: 'email' }
+  },
+  {
+    title: '生源地',
+    dataIndex: 'origin'
+  },
+  {
+    title: '家庭地址',
+    ellipsis: true,
+    dataIndex: 'address'
+  }
+]
 const statusMap = {
 }
 
@@ -167,23 +195,22 @@ export default {
   name: 'TableList',
   components: {
     STable,
-    Ellipsis,
-    CreateForm,
-    StepByStepModal
+    Ellipsis
   },
   data () {
     this.columns = columns
+    this.ClassInfoColumns = ClassInfoColumns
     return {
       // create model
       visible: false,
       confirmLoading: false,
       mdl: null,
-      // 高级搜索 展开/关闭
-      advanced: false,
       // 查询参数
-      queryParam: {},
+      queryParam: {
+      },
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
+        this.queryParam.teacherName = this.$store.getters.userInfo.username
         return getClassTask(parameter, this.queryParam)
           .then(res => {
             if (res.data.list.length === 0) {
@@ -192,14 +219,19 @@ export default {
             return res.data
           })
       },
+      loadDataClass: parameter => {
+        return getStudentInfo(parameter, this.queryParam)
+          .then(res => {
+            if (res.data.list.length === 0) {
+              this.$message.warning('未查找到匹配目标')
+            }
+            return res.data
+          })
+      },
       disabled: true,
-      isdisabled: true,
-      semedisabled: true,
-      colleges: [],
       classes: [],
-      majors: [],
       semesters: [],
-      que: {}
+      switchClassInfo: true
     }
   },
   filters: {
@@ -213,7 +245,6 @@ export default {
   created () {
   },
   mounted () {
-    this.getCollege()
     this.getSemesters()
   },
   computed: {
@@ -225,6 +256,11 @@ export default {
     }
   },
   methods: {
+    ClassInfo (record) {
+      this.switchClassInfo = false
+      this.queryParam = {}
+      this.queryParam.classes = record.className
+    },
     getSemesters () {
       getSemesters().then(res => {
         this.semesters = res.data
@@ -251,101 +287,32 @@ export default {
       })
     },
     semesterSel (val) {
-      this.semedisabled = false
       this.semester = val
     },
     changeSe (val, op) {
       if (op === undefined) {
-        this.semedisabled = true
       } else {
-        this.semedisabled = false
         this.semester = val
       }
-    },
-    getCollege () {
-      getCollege().then(res => {
-        this.colleges = res.data
-      })
     },
     onChange (value, dateString) {
       this.queryParam.createdTime = dateString
     },
     queryReset () {
       this.queryParam = {}
-      this.disabled = true
     },
-    handleAdd () {
-      this.mdl = null
-      this.isdisabled = false
-      this.visible = true
+    back () {
+      this.switchClassInfo = true
     },
     selectClasses (value) {
       this.queryParam.classes = ''
       getClassesByCollege(value).then(res => {
         this.classes = res.data
-        this.disabled = false
       })
-    },
-    selectMajor (value) {
-      this.queryParam.major = ''
-      getMajorByCollegeName(value).then(res => {
-        this.majors = res.data
-        this.majordisabled = false
-      })
-    },
-    handleEdit (record) {
-      this.mdl = { ...record }
-      this.isdisabled = true
-      this.visible = true
-    },
-    handleOk (isdisabled) {
-      console.log('a')
-      console.log(isdisabled)
-      const form = this.$refs.createModal.form
-      this.confirmLoading = true
-      form.validateFields((errors, values) => {
-        if (!errors) {
-          form.setFieldsValue({ 'createdId': store.getters.userInfo.id })
-          if (isdisabled === true) {
-            updateCourse(form.getFieldsValue()).then(res => {
-              this.visible = false
-              this.confirmLoading = false
-              // 重置表单数据
-              form.resetFields()
-              // 刷新表格
-              this.$refs.table.refresh()
-
-              this.$message.info('修改成功')
-            })
-          } else {
-            addClassTask(form.getFieldsValue()).then(res => {
-              this.visible = false
-              this.confirmLoading = false
-              // 重置表单数据
-              form.resetFields()
-              // 刷新表格
-              this.$refs.table.refresh()
-
-              this.$message.info('添加成功')
-            })
-          }
-        } else {
-          this.confirmLoading = false
-        }
-      })
-    },
-    handleCancel () {
-      this.isdisabled = true
-      this.visible = false
-      const form = this.$refs.createModal.form
-      form.resetFields() // 清理表单数据（可不做）
     },
     onSelectChange (selectedRowKeys, selectedRows) {
       this.selectedRowKeys = selectedRowKeys
       this.selectedRows = selectedRows
-    },
-    toggleAdvanced () {
-      this.advanced = !this.advanced
     },
     resetSearchForm () {
       this.queryParam = {
