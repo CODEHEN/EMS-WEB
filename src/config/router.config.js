@@ -214,27 +214,26 @@ export const asyncRouterMap = [
         ]
       },
       {
-        path: '/teacher',
+        path: '/teacher/course',
         name: 'TeacherCourse',
+        component: () => import('@/views/list/teacher/Course'),
+        meta: { title: 'menu.teacher.course', icon: 'profile', permission: ['teacher'] }
+      },
+      // profileu
+      {
+        path: '/teacher/grade',
+        name: 'Grade',
         component: RouteView,
-        redirect: '/teacher/course',
-        meta: { title: 'menu.teacherTask', icon: 'profile', permission: ['teacher'] },
+        meta: { title: 'menu.teacher.grade', icon: 'profile', permission: ['teacher'] },
         children: [
           {
-            path: '/teacher/course',
-            name: 'Course',
-            component: () => import('@/views/list/teacher/Course'),
-            meta: { title: 'menu.teacher.course', permission: ['teacher'] }
-          },
-          {
-            path: '/teacher/class',
-            name: 'Class',
-            component: () => import('@/views/schedule/Class'),
-            meta: { title: 'menu.teacher.class', permission: ['teacher'] }
+            path: '/teacher/grade/recorded',
+            name: 'GradeRecorded',
+            component: () => import('@/views/list/teacher/Grade'),
+            meta: { title: 'menu.teacher.grade.recorded', icon: 'profile', permission: ['teacher'] }
           }
-          ]
+        ]
       },
-      // profile
       {
         path: '/schedule',
         name: 'schedule',
