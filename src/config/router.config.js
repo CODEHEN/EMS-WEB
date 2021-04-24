@@ -231,6 +231,12 @@ export const asyncRouterMap = [
             name: 'GradeRecorded',
             component: () => import('@/views/list/teacher/Grade'),
             meta: { title: 'menu.teacher.grade.recorded', icon: 'profile', permission: ['teacher'] }
+          },
+          {
+            path: '/teacher/grade/ranking',
+            name: 'Ranking',
+            component: () => import('@/views/list/ranking'),
+            meta: { title: 'menu.teacher.grade.ranking', icon: 'profile', permission: ['teacher'] }
           }
         ]
       },

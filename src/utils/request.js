@@ -30,23 +30,26 @@ request.interceptors.request.use(
 request.interceptors.response.use(
   response => {
     const res = response.data
+    if (res.code === 401) {
+      notification.error({
+        message: '登录过期',
+        description: '即将跳至登录页'
+      })
+      store.dispatch('Logout').then(() => {
+        window.location.reload()
+      })
+    }
+    if (response.config.url === '/grade/export' || response.config.url === '/grade/rankExport') {
+      console.log('aaawf')
+      return response
+    }
     if (res.code !== 200) {
       notification.error({
         message: res.code,
         description: res.message
       })
-      // 401:Token过期 或 未登录
-      if (res.code === 401) {
-        notification.error({
-          message: '登录过期',
-          description: '即将跳至登录页'
-        })
-          store.dispatch('Logout').then(() => {
-              window.location.reload()
-          })
-      }
       // eslint-disable-next-line prefer-promise-reject-errors
-      return Promise.reject('error')
+      return Promise.reject('erroraaa')
     } else {
       return response.data
     }

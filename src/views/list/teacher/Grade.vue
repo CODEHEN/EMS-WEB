@@ -4,20 +4,20 @@
       <div class="table-page-search-wrapper">
         <a-form layout="inline">
           <a-row :gutter="48">
-            <a-col :md="8" :sm="24">
+            <a-col :md="5" :sm="24">
               <a-form-item label="学期">
                 <a-select v-model="queryParam.semester">
                   <a-select-option v-for="(semester,index) in semesters" :key="index" :value="semester">{{ semester }}</a-select-option>
                 </a-select>
               </a-form-item>
             </a-col>
-            <a-col :md="8" :sm="24">
+            <a-col :md="5" :sm="24">
               <a-form-item label="课程名称">
                 <a-input v-model="queryParam.courseName" placeholder=""/>
               </a-form-item>
             </a-col>
             <template>
-              <a-col :md="8" :sm="24">
+              <a-col :md="5" :sm="24">
                 <a-form-item label="课程类型">
                   <a-select placeholder="请选择" v-model="queryParam.courseAttr">
                     <a-select-option value="01">专业课</a-select-option>
@@ -27,13 +27,13 @@
                   </a-select>
                 </a-form-item>
               </a-col>
-              <a-col :md="8" :sm="24">
+              <a-col :md="5" :sm="24">
                 <a-form-item label="班级">
                   <a-input v-model="queryParam.className" placeholder=""/>
                 </a-form-item>
               </a-col>
             </template>
-            <a-col :md="16" :sm="24">
+            <a-col :md="4" :sm="24">
               <span class="table-page-search-submitButtons" style="float: right">
                 <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
                 <a-button style="margin-left: 8px" @click="queryReset">重置</a-button>
@@ -54,26 +54,59 @@
       >
         <span slot="action" slot-scope="text, record">
           <template>
-            <a @click="ClassInfo(record)"> 录入成绩</a>
+            <a @click="ClassInfo(record)"> 手动录入 </a> ||
+            <a @click="ExcelImport(record)">  Excel录入</a> ||
+            <a @click="ExcelExport(record)">  导出成绩</a>
           </template>
         </span>
       </s-table>
+      <a-modal
+        title="Excel导入"
+        :visible="modelVisible"
+        @cancel="() => this.modelVisible = false"
+        :footer="null"
+      >
+        <a-upload
+          name="file"
+          :multiple="true"
+          :action="actionUrl"
+          :data="{person:this.$store.getters.userInfo.username,selectClass:this.selectClass,selectCourse:this.selectCourse,semester:this.semester}"
+          accept=".xls,.xlsx"
+          @change="fileChange"
+        >
+          <a-button> <a-icon type="upload" />选择文件</a-button>
+        </a-upload>
+      </a-modal>
     </a-card>
     <a-card :bordered="false" v-if="!switchClassInfo">
       <div class="table-page-search-wrapper">
         <a-form layout="inline">
           <a-row :gutter="48">
-            <a-col :md="8" :sm="24">
+            <a-col :md="5" :sm="24">
               <a-form-item label="学生编号">
                 <a-input v-model.number="queryParam.number" placeholder=""/>
               </a-form-item>
             </a-col>
-            <a-col :md="8" :sm="24">
+            <a-col :md="5" :sm="24">
               <a-form-item label="学生姓名">
                 <a-input v-model.number="queryParam.username" placeholder=""/>
               </a-form-item>
             </a-col>
-            <a-col :md="switchClassInfo?16:8" :sm="24">
+            <a-col :md="8" :sm="24">
+              <a-form-item label="筛选">
+                <a-select
+                  mode="multiple"
+                  style="width: 100%"
+                  @change="handleChangeShai"
+                  @deselect="deselect"
+                  v-model="queryParam.orderT"
+                >
+                  <a-select-option value="02" :disabled="ascFlg">成绩由低至高</a-select-option>
+                  <a-select-option value="03" :disabled="descFlg">成绩由高至低</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
               <span class="table-page-search-submitButtons" style="float: right">
                 <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
                 <a-button style="margin-left: 8px" @click="queryReset">重置</a-button>
@@ -117,7 +150,7 @@ import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
 import { getClassTask, Scheduling, getSemesters } from '@/api/classTask'
 import { getClassesByCollege } from '@/api/classes'
-import { saveGrade, getStudentGradeInfo } from '@/api/grade'
+import { saveGrade, getStudentGradeInfo, ExcelExport } from '@/api/grade'
 
 const columns = [
   {
@@ -186,7 +219,7 @@ const ClassInfoColumns = [
   },
   {
     title: '录入人',
-    width: 160,
+    width: 200,
     dataIndex: 'person'
   },
   {
@@ -241,7 +274,12 @@ export default {
       switchClassInfo: true,
       gradeRows: [],
       selectClass: '',
-      selectCourse: ''
+      selectCourse: '',
+      semester: '',
+      ascFlg: false,
+      descFlg: false,
+      modelVisible: false,
+      actionUrl: process.env.VUE_APP_API_BASE_URL + '/grade/gradeExcel'
     }
   },
   filters: {
@@ -290,16 +328,69 @@ export default {
         }
       })
     },
+    handleChangeShai (val) {
+      const _this = this
+      val.forEach(function (value) {
+        if (value === '02') {
+          _this.queryParam.order = 'asc'
+          _this.descFlg = true
+        }
+        if (value === '03') {
+          _this.queryParam.order = 'desc'
+          _this.ascFlg = true
+        }
+      })
+    },
+    deselect (val) {
+      if (val === '02') {
+        this.descFlg = false
+      }
+      if (val === '03') {
+        this.ascFlg = false
+      }
+    },
     ClassInfo (record) {
       this.switchClassInfo = false
       this.queryParam = {}
       this.selectClass = record.className
       this.selectCourse = record.courseName
       this.queryParam.classes = record.className
+      this.queryParam.course = record.courseName
+      this.queryParam.semester = record.semester
+    },
+    ExcelImport (record) {
+      this.modelVisible = true
+      this.selectClass = record.className
+      this.selectCourse = record.courseName
+      this.semester = record.semester
+    },
+    ExcelExport (record) {
+      this.queryParam = {}
+      this.selectClass = record.className
+      this.selectCourse = record.courseName
+      this.queryParam.classes = record.className
+      this.queryParam.course = record.courseName
+      this.queryParam.semester = record.semester
+      ExcelExport(this.queryParam).then(res => {
+        const fileName = this.queryParam.classes + this.queryParam.course + '成绩.xlsx' // 表格名字
+        const blob = new Blob([res.data])
+        const linkNode = document.createElement('a')
+
+        linkNode.download = fileName
+        linkNode.style.display = 'none'
+        linkNode.href = URL.createObjectURL(blob) // 生成一个Blob URL
+        document.body.appendChild(linkNode)
+        linkNode.click() // 模拟在按钮上的一次鼠标单击
+
+        URL.revokeObjectURL(linkNode.href) // 释放URL 对象
+        document.body.removeChild(linkNode)
+      }).catch(e => {
+        console.log(e)
+      })
     },
     getSemesters () {
       getSemesters().then(res => {
-        this.semesters = res.data
+          this.semesters = res.data
       })
     },
     fileChange (event) {
@@ -335,14 +426,19 @@ export default {
       this.queryParam.createdTime = dateString
     },
     queryReset () {
+      this.descFlg = false
+      this.ascFlg = false
       this.queryParam = {}
+      this.queryParam.classes = this.selectClass
     },
     back () {
+      this.descFlg = false
+      this.ascFlg = false
       this.switchClassInfo = true
       this.gradeRows = []
     },
     saveGrade () {
-      saveGrade(this.gradeRows, this.selectClass, this.selectCourse, this.$store.getters.userInfo.username).then(res => {
+      saveGrade(this.gradeRows, this.selectClass, this.selectCourse, this.$store.getters.userInfo.username, this.queryParam.semester).then(res => {
         if (res.code === 200) {
           this.$message.success('保存成功')
           this.$refs.table.refresh()

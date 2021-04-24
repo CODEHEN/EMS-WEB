@@ -36,6 +36,7 @@ export default {
     'menu.teacher.course': '授课课程',
     'menu.teacher.grade': '成绩管理',
     'menu.teacher.grade.recorded': '成绩录入',
+    'menu.teacher.grade.ranking': '成绩排名',
     'menu.profile': '详情页',
     'menu.schedule': '课表查询',
     'menu.profile.basic': '基础详情页',
