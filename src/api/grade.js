@@ -41,3 +41,17 @@ export function ranking (pageinfo) {
     data: pageinfo
   })
 }
+
+export function getStudentCourseGrade (value) {
+  return request({
+    url: `/grade/student/course?semester=${value.semester}&number=${value.number}`,
+    method: 'get'
+  })
+}
+
+export function getLevelGrade (value) {
+  return request({
+    url: `/grade/student/cet?ticketNumber=${value.ticketNumber}&name=${value.name}`,
+    method: 'get'
+  })
+}

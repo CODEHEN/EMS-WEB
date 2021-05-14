@@ -1,4 +1,5 @@
 import { asyncRouterMap, constantRouterMap } from '@/config/router.config'
+import cloneDeep from 'lodash.clonedeep'
 function hasPermission (permission, route) {
   if (route.meta && route.meta.permission) {
     let flag = false
@@ -14,7 +15,8 @@ function hasPermission (permission, route) {
 }
 
 function filterAsyncRouter (routerMap, roles) {
-  const accessedRouters = routerMap.filter(route => {
+  const asyncRouterMap = cloneDeep(routerMap)
+  const accessedRouters = asyncRouterMap.filter(route => {
     if (hasPermission(roles, route)) {
       if (route.children && route.children.length) {
         route.children = filterAsyncRouter(route.children, roles)

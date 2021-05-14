@@ -13,3 +13,18 @@ export function getTeaName (value) {
     method: 'get'
   })
 }
+
+export function updateUserInfo (value) {
+  return request({
+    url: `/user/info`,
+    method: 'put',
+    data: value
+  })
+}
+
+export function updatePwd (oldPwd, newPwd, number) {
+  return request({
+    url: `/user/pwd?oldPwd=${oldPwd}&newPwd=${newPwd}&number=${number}`,
+    method: 'put'
+  })
+}

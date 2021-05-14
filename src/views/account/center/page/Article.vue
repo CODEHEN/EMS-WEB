@@ -1,44 +1,58 @@
 <template>
-  <a-list
-    size="large"
-    rowKey="id"
-    :loading="loading"
-    itemLayout="vertical"
-    :dataSource="data"
-  >
-    <a-list-item :key="item.id" slot="renderItem" slot-scope="item">
-      <template slot="actions">
-        <icon-text type="star-o" :text="item.star" />
-        <icon-text type="like-o" :text="item.like" />
-        <icon-text type="message" :text="item.message" />
-      </template>
-      <a-list-item-meta>
-        <a slot="title" href="https://vue.ant.design/">{{ item.title }}</a>
-        <template slot="description">
-          <span>
-            <a-tag>Ant Design</a-tag>
-            <a-tag>设计语言</a-tag>
-            <a-tag>蚂蚁金服</a-tag>
-          </span>
-        </template>
-      </a-list-item-meta>
-      <article-list-content :description="item.description" :owner="item.owner" :avatar="item.avatar" :href="item.href" :updateAt="item.updatedAt" />
-    </a-list-item>
-    <div slot="footer" v-if="data.length > 0" style="text-align: center; margin-top: 16px;">
-      <a-button @click="loadMore" :loading="loadingMore">加载更多</a-button>
-    </div>
-  </a-list>
+  <div class="page-header-index-wide">
+    <a-card :bordered="false" :bodyStyle="{ padding: '16px 0', height: '100%' }" :style="{ height: '100%' }">
+      <div class="account-settings-info-main" :class="{ 'mobile': isMobile }">
+        <div class="account-settings-info-left">
+          <a-menu
+            :mode="isMobile ? 'horizontal' : 'inline'"
+            :style="{ border: '0', width: isMobile ? '560px' : 'auto'}"
+            :selectedKeys="selectedKeys"
+            type="inner"
+            @openChange="onOpenChange"
+          >
+            <a-menu-item key="/account/settings/basic">
+              <router-link :to="{ name: 'BasicSettings' }">
+                {{ $t('account.settings.menuMap.basic') }}
+              </router-link>
+            </a-menu-item>
+            <a-menu-item key="/account/settings/security">
+              <router-link :to="{ name: 'SecuritySettings' }">
+                {{ $t('account.settings.menuMap.security') }}
+              </router-link>
+            </a-menu-item>
+            <a-menu-item key="/account/settings/custom">
+              <router-link :to="{ name: 'CustomSettings' }">
+                {{ $t('account.settings.menuMap.custom') }}
+              </router-link>
+            </a-menu-item>
+            <a-menu-item key="/account/settings/binding">
+              <router-link :to="{ name: 'BindingSettings' }">
+                {{ $t('account.settings.menuMap.binding') }}
+              </router-link>
+            </a-menu-item>
+            <a-menu-item key="/account/settings/notification">
+              <router-link :to="{ name: 'NotificationSettings' }">
+                {{ $t('account.settings.menuMap.notification') }}
+              </router-link>
+            </a-menu-item>
+          </a-menu>
+        </div>
+        <div class="account-settings-info-right">
+          <div class="account-settings-info-title">
+            <span>{{ $t($route.meta.title) }}</span>
+          </div>
+          <route-view></route-view>
+        </div>
+      </div>
+    </a-card>
+  </div>
 </template>
 
 <script>
-import { ArticleListContent } from '@/components'
-import IconText from '@/views/list/search/components/IconText'
 
 export default {
   name: 'Article',
   components: {
-    IconText,
-    ArticleListContent
   },
   data () {
     return {
@@ -48,24 +62,8 @@ export default {
     }
   },
   mounted () {
-    this.getList()
   },
   methods: {
-    getList () {
-      this.$http.get('/list/article').then(res => {
-        console.log('res', res)
-        this.data = res.result
-        this.loading = false
-      })
-    },
-    loadMore () {
-      this.loadingMore = true
-      this.$http.get('/list/article').then(res => {
-        this.data = this.data.concat(res.result)
-      }).finally(() => {
-        this.loadingMore = false
-      })
-    }
   }
 }
 </script>

@@ -36,11 +36,10 @@ request.interceptors.response.use(
         description: '即将跳至登录页'
       })
       store.dispatch('Logout').then(() => {
-        window.location.reload()
+        window.location.reload(true)
       })
     }
     if (response.config.url === '/grade/export' || response.config.url === '/grade/rankExport') {
-      console.log('aaawf')
       return response
     }
     if (res.code !== 200) {

@@ -7,7 +7,7 @@
         </div>
         <div class="content">
           <div class="content-title">
-            {{ timeFix }}，{{ user.username }}<span class="welcome-text">，{{ welcome }}</span>
+            {{ timeFix }}，{{ user.username }}
           </div>
           <div v-if="role === 'student'">{{ user.classes }} | {{ user.college }} - {{ user.major }}</div>
           <div v-if="role === 'teacher'">{{ user.college }} - {{ user.number }}</div>
@@ -22,7 +22,7 @@
             class="project-list"
             :loading="loading"
             :bordered="false"
-            title="学期课表"
+            title="我的课表"
             :body-style="{ padding: 0 }">
           </a-card>
           <div id="coursesTable"></div>
@@ -37,11 +37,15 @@
           <a-card title="常用操作" style="margin-bottom: 24px" :bordered="false">
             <div class="members">
               <a-row>
-                <a-col :span="12" v-for="(op,index) in this.operations " :key="index">
+                <a-col :span="12" style="margin-top: 10px" v-for="(op,index) in this.operations " :key="index">
                   <a>
                     <a-avatar size="small" :src="user.avatar"/>
-                    <span class="member">{{ op }}</span>
-                  </a>
+<!--                      <span class="member">{{ op.name }}</span>-->
+                    <router-link :to="{ name: op.pathName }">
+                      <span class="member">{{ op.name }}</span>
+                    </router-link>
+                    </a>
+
                 </a-col>
               </a-row>
             </div>
@@ -49,15 +53,10 @@
 
           <a-card title="公告栏" :bordered="false">
             <a-list>
-              <a-list-item :key="index" v-for="index of 10">
-                <a-list-item-meta>
+              <a-list-item v-for="(not,index) in notice " :key="index">
+                <a-list-item-meta :description="not.content">
                   <a-avatar slot="avatar" :src="user.avatar"/>
-                  <div slot="title">
-                    <span>{{ user.username }}</span>&nbsp;
-                    在&nbsp;<a href="#">{{ user.classes }}</a>&nbsp;
-                    <span>{{ user.classes }}</span>&nbsp;
-                    <a href="#">{{ user.major }}</a>
-                  </div>
+                  <a slot="title" style="color:red" @click.prevent="noticeTip(not)">{{ not.title }}</a>
                 </a-list-item-meta>
               </a-list-item>
             </a-list>
@@ -73,8 +72,9 @@ import { timeFix } from '@/utils/util'
 import { mapState } from 'vuex'
 import { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
 import Timetables from 'timetables'
-import { teacherSchedule } from '@/api/schedule'
+import { studentSchedule, teacherSchedule } from '@/api/schedule'
 import store from '@/store'
+import { getNotice } from '@/api/notice'
 
 export default {
   name: 'Workplace',
@@ -85,7 +85,24 @@ export default {
     return {
       timeFix: timeFix(),
       user: {},
-      operations: ['成绩查询', '学期选课', '课程查询', '选课中心'],
+      operations: [
+        {
+        name: '成绩查询',
+        pathName: 'StudentGrade'
+      },
+        {
+          name: '选课中心',
+          pathName: 'electiveCourseCenter'
+        },
+        {
+          name: '课表查询',
+          pathName: 'Teacher'
+        },
+        {
+          name: '我的课程',
+          pathName: 'studentCourseSemester'
+        }
+      ],
       loading: true,
       // data
       timetables: [
@@ -98,11 +115,11 @@ export default {
         ['', '', '', '', '']
       ],
       timetableType: [
-        [{ index: '1', name: '8:30' }, 1],
-        [{ index: '2', name: '8:30' }, 1],
-        [{ index: '3', name: '8:30' }, 1],
-        [{ index: '4', name: '8:30' }, 1],
-        [{ index: '5', name: '8:30' }, 1]
+        [{ index: '1', name: '8:20-10:00' }, 1],
+        [{ index: '2', name: '10:20-12:00' }, 1],
+        [{ index: '3', name: '14:00-15:40' }, 1],
+        [{ index: '4', name: '15:50-17:30' }, 1],
+        [{ index: '5', name: '19:00-20:30' }, 1]
       ],
       week: ['一', '二', '三', '四', '五', '六', '日'],
       highlightWeek: new Date().getDay(),
@@ -112,13 +129,13 @@ export default {
         palette: ['#ff6633', '#8f8123']
       },
       Timetable: null,
-      queryParam: {}
+      queryParam: {},
+      notice: []
     }
   },
   computed: {
     ...mapState({
-      nickname: (state) => state.user.username,
-      welcome: (state) => state.user.welcome
+      nickname: (state) => state.user.username
     }),
     userInfo () {
       return this.$store.getters.userInfo
@@ -130,27 +147,82 @@ export default {
   created () {
     this.user = this.userInfo
     this.avatar = this.userInfo.avatar
+    this.getNotice()
   },
   mounted () {
-    this.queryParam.teacherName = store.getters.userInfo.username
-    teacherSchedule(this.queryParam).then(res => {
-      if (res.code === 200) {
-        this.timetables = res.data
-        this.Timetable = new Timetables({
-          el: '#coursesTable',
-          timetables: this.timetables,
-          week: this.week,
-          timetableType: this.timetableType,
-          highlightWeek: this.highlightWeek,
-          gridOnClick: function (e) {
-            alert(e.name + '  ' + e.week + ', 第' + e.index + '节课, 课长' + e.length + '节')
-          },
-          styles: this.styles
-        })
-      }
-    })
+    console.log('we')
+    console.log(document.querySelector('#coursesTable'))
+    const _this = this
+    if (this.role === 'student') {
+      this.queryParam.studentNumber = this.userInfo.number
+      studentSchedule(this.queryParam).then(res => {
+        if (res.code === 200) {
+          this.timetables = res.data
+          this.Timetable = new Timetables({
+            el: '#coursesTable',
+            timetables: this.timetables,
+            week: this.week,
+            timetableType: this.timetableType,
+            highlightWeek: this.highlightWeek,
+            gridOnClick: function (e) {
+              _this.$notification.open({
+                message: '课程详情',
+                description:
+                  e.name + '  ' + '周' + e.week + ', 第' + e.index + '节课, 课长' + e.length + '节',
+                icon: <a-icon type="smile" style="color: #108ee9" />,
+                onClick: () => {
+                  console.log('Notification Clicked!')
+                }
+              })
+            },
+            styles: this.styles
+          })
+        }
+      })
+    } else {
+      this.queryParam.teacherName = store.getters.userInfo.username
+      teacherSchedule(this.queryParam).then(res => {
+        if (res.code === 200) {
+          this.timetables = res.data
+          this.Timetable = new Timetables({
+            el: '#coursesTable',
+            timetables: this.timetables,
+            week: this.week,
+            timetableType: this.timetableType,
+            highlightWeek: this.highlightWeek,
+            gridOnClick: function (e) {
+              alert(e.name + '  ' + e.week + ', 第' + e.index + '节课, 课长' + e.length + '节')
+            },
+            styles: this.styles
+          })
+        }
+      })
+    }
   },
   methods: {
+    getNotice () {
+      const parameter = {}
+      parameter.pageSize = 10
+      parameter.pageNum = 1
+      getNotice(parameter, this.queryParam)
+        .then(res => {
+          if (res.data.list.length === 0) {
+            this.$message.warning('未查找到匹配目标')
+          }
+          this.notice = res.data.list
+        })
+    },
+    noticeTip (not) {
+      const h = this.$createElement
+      this.$notification.open({
+        message: not.title,
+        description: h('div', null, [
+          h('p', { domProps: { innerHTML: '\n' + not.content + '\n' + '\n' + '由' + '<span style="color:red;">' + not.createdName + '</span>' + '发布于' + not.createdTime } }, null)
+        ]),
+        duration: 7,
+        class: 'ant-notice-self'
+      })
+    }
   }
 }
 </script>
@@ -331,7 +403,6 @@ export default {
 
   .members {
     a {
-      display: block;
       margin: 12px 0;
       line-height: 24px;
       height: 24px;
@@ -373,6 +444,11 @@ export default {
     .headerContent .title .welcome-text {
       display: none;
     }
+  }
+  .ant-notice-self {
+    word-wrap: break-word;
+    word-break: break-all;
+    white-space:pre
   }
 
 </style>

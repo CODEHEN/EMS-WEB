@@ -24,12 +24,6 @@ export const asyncRouterMap = [
         meta: { title: 'menu.dashboard', keepAlive: true, icon: bxAnaalyse, permission: ['student', 'admin', 'teacher'] },
         children: [
           {
-            path: '/dashboard/analysis/:pageNo([1-9]\\d*)?',
-            name: 'Analysis',
-            component: () => import('@/views/dashboard/Analysis'),
-            meta: { title: 'menu.dashboard.analysis', keepAlive: false, permission: ['student', 'teacher'] }
-          },
-          {
             path: '/dashboard/workplace',
             name: 'Workplace',
             component: () => import('@/views/dashboard/Workplace'),
@@ -39,28 +33,28 @@ export const asyncRouterMap = [
       },
       // forms
       {
-        path: '/form',
-        redirect: '/form/base-form',
+        path: '/studentCourse',
+        redirect: '/electiveCourse/center',
         component: RouteView,
-        meta: { title: 'menu.form', icon: 'form', permission: ['student'] },
+        meta: { title: 'menu.electiveCourse', icon: 'form', permission: ['student'] },
         children: [
           {
-            path: '/form/base-form',
-            name: 'BaseForm',
-            component: () => import('@/views/form/basicForm'),
-            meta: { title: 'menu.form.basic-form', keepAlive: true, permission: ['student'] }
+            path: '/semester',
+            name: 'studentCourseSemester',
+            component: () => import('../views/list/course/studentCourse'),
+            meta: { title: '学期课程', keepAlive: true, permission: ['student'] }
           },
           {
-            path: '/form/step-form',
-            name: 'StepForm',
-            component: () => import('@/views/form/stepForm/StepForm'),
-            meta: { title: 'menu.form.step-form', keepAlive: true, permission: ['student'] }
+            path: '/electiveCourse/center',
+            name: 'electiveCourseCenter',
+            component: () => import('../views/list/course/ElectiveCourseInfoTableList'),
+            meta: { title: 'menu.electiveCourse.center', keepAlive: true, permission: ['student'] }
           },
           {
-            path: '/form/advanced-form',
-            name: 'AdvanceForm',
-            component: () => import('@/views/form/advancedForm/AdvancedForm'),
-            meta: { title: 'menu.form.advanced-form', keepAlive: true, permission: ['student'] }
+            path: '/electiveCourse/result',
+            name: 'electiveCourseResult',
+            component: () => import('@/views/list/course/elective'),
+            meta: { title: 'menu.electiveCourse.result', keepAlive: true, permission: ['student'] }
           }
         ]
       },
@@ -224,7 +218,7 @@ export const asyncRouterMap = [
         path: '/teacher/grade',
         name: 'Grade',
         component: RouteView,
-        meta: { title: 'menu.teacher.grade', icon: 'profile', permission: ['teacher'] },
+        meta: { title: 'menu.teacher.grade', icon: 'profile', permission: ['teacher', 'student'] },
         children: [
           {
             path: '/teacher/grade/recorded',
@@ -237,6 +231,18 @@ export const asyncRouterMap = [
             name: 'Ranking',
             component: () => import('@/views/list/ranking'),
             meta: { title: 'menu.teacher.grade.ranking', icon: 'profile', permission: ['teacher'] }
+          },
+          {
+            path: '/student/grade/course',
+            name: 'StudentGrade',
+            component: () => import('@/views/list/StudentGrade'),
+            meta: { title: '课程成绩', icon: 'profile', permission: ['student'] }
+          },
+          {
+            path: '/student/grade/level',
+            name: 'StudentGradeLevel',
+            component: () => import('@/views/list/StudentGradeLevel'),
+            meta: { title: '等级考试成绩', icon: 'profile', permission: ['student'] }
           }
         ]
       },
@@ -245,33 +251,39 @@ export const asyncRouterMap = [
         name: 'schedule',
         component: RouteView,
         redirect: '/schedule/semester',
-        meta: { title: 'menu.schedule', icon: 'profile', permission: ['admin'] },
+        meta: { title: 'menu.schedule', icon: 'profile', permission: ['admin', 'teacher', 'student'] },
         children: [
           {
             path: '/schedule/semester',
             name: 'Semester',
             component: () => import('@/views/schedule/Semester'),
-            meta: { title: 'menu.schedule.semester', permission: ['admin'] }
+            meta: { title: 'menu.schedule.semester', permission: ['admin', 'teacher'] }
           },
           {
             path: '/schedule/teacher',
             name: 'Teacher',
             component: () => import('@/views/schedule/Teacher'),
-            meta: { title: 'menu.schedule.teacher', permission: ['admin'] }
+            meta: { title: 'menu.schedule.teacher', permission: ['admin', 'teacher', 'student'] }
           },
           {
             path: '/schedule/class',
             name: 'Class',
             component: () => import('@/views/schedule/Class'),
-            meta: { title: 'menu.schedule.class', permission: ['admin'] }
+            meta: { title: 'menu.schedule.class', permission: ['admin', 'teacher'] }
           },
           {
             path: '/schedule/classroom',
             name: 'ClassRoom',
             component: () => import('@/views/schedule/ClassRoom'),
-            meta: { title: 'menu.schedule.classroom', permission: ['admin'] }
+            meta: { title: 'menu.schedule.classroom', permission: ['admin', 'teacher', 'student'] }
           }
         ]
+      },
+      {
+        path: '/public/reward_punishment',
+        name: 'Reward_Punishment',
+        component: () => import('../views/list/reward_punishment/Reward_PunishmentTableList'),
+        meta: { title: 'menu.list.reward_punishment', icon: 'check-circle-o', permission: ['student'] }
       },
 
       // result
@@ -332,19 +344,14 @@ export const asyncRouterMap = [
         component: RouteView,
         redirect: '/account/center',
         name: 'account',
-        meta: { title: 'menu.account', icon: 'user', keepAlive: true, permission: ['user'] },
+        hidden: true,
+        meta: { title: 'menu.account', icon: 'user', keepAlive: true, permission: ['student'] },
         children: [
-          {
-            path: '/account/center',
-            name: 'center',
-            component: () => import('@/views/account/center'),
-            meta: { title: 'menu.account.center', keepAlive: true, permission: ['user'] }
-          },
           {
             path: '/account/settings',
             name: 'settings',
             component: () => import('@/views/account/settings/Index'),
-            meta: { title: 'menu.account.settings', hideHeader: true, permission: ['user'] },
+            meta: { title: 'menu.account.settings', hideHeader: true, permission: ['student'] },
             redirect: '/account/settings/basic',
             hideChildrenInMenu: true,
             children: [
@@ -352,7 +359,7 @@ export const asyncRouterMap = [
                 path: '/account/settings/basic',
                 name: 'BasicSettings',
                 component: () => import('@/views/account/settings/BasicSetting'),
-                meta: { title: 'account.settings.menuMap.basic', hidden: true, permission: ['user'] }
+                meta: { title: 'account.settings.menuMap.basic', hidden: true, permission: ['student'] }
               },
               {
                 path: '/account/settings/security',
@@ -362,20 +369,20 @@ export const asyncRouterMap = [
                   title: 'account.settings.menuMap.security',
                   hidden: true,
                   keepAlive: true,
-                  permission: ['user']
+                  permission: ['student']
                 }
               },
               {
                 path: '/account/settings/custom',
                 name: 'CustomSettings',
                 component: () => import('@/views/account/settings/Custom'),
-                meta: { title: 'account.settings.menuMap.custom', hidden: true, keepAlive: true, permission: ['user'] }
+                meta: { title: 'account.settings.menuMap.custom', hidden: true, keepAlive: true, permission: ['student'] }
               },
               {
                 path: '/account/settings/binding',
                 name: 'BindingSettings',
                 component: () => import('@/views/account/settings/Binding'),
-                meta: { title: 'account.settings.menuMap.binding', hidden: true, keepAlive: true, permission: ['user'] }
+                meta: { title: 'account.settings.menuMap.binding', hidden: true, keepAlive: true, permission: ['student'] }
               },
               {
                 path: '/account/settings/notification',
@@ -385,7 +392,7 @@ export const asyncRouterMap = [
                   title: 'account.settings.menuMap.notification',
                   hidden: true,
                   keepAlive: true,
-                  permission: ['user']
+                  permission: ['student']
                 }
               }
             ]

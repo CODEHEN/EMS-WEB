@@ -28,6 +28,11 @@
             <a-select-option value="1">线下</a-select-option>
           </a-select>
         </a-form-item>
+        <a-form-item label="学期" >
+          <a-input
+            v-decorator="['semester', {rules: [{required: true,pattern: '^[0-9]{4}-[0-9]{4}-[1-2]{1}$', message: '格式：2020-2021-1'}]}]"
+            placeholder="格式：2020-2021-1"/>
+        </a-form-item>
         <a-form-item label="上课时间" v-if="isshow || !isdisabled">
           周：
           <a-input-number
@@ -85,7 +90,7 @@ import { getTeaName } from '@/api/user'
 import { getTeachBuildInfo2 } from '@/api/teach_build'
 import { getClassRoomByTeachBuildId } from '@/api/classroom'
 // 表单字段
-const fields = ['id', 'courseId', 'week', 'day', 'build', 'classroomId', 'courseName', 'type', 'classTime', 'teacherName', 'courseAttr', 'totalNum']
+const fields = ['id', 'courseId', 'week', 'day', 'build', 'classroomId', 'courseName', 'type', 'classTime', 'teacherName', 'courseAttr', 'totalNum', 'semester']
 export default {
   props: {
     visible: {

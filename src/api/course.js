@@ -60,3 +60,27 @@ export function getCourseName (value) {
     method: 'get'
   })
 }
+
+export function selectCourse (value) {
+  return request({
+    url: `/course/elective/student`,
+    method: 'post',
+    data: value
+  })
+}
+
+export function getStudentElectiveCourse (parameter, value) {
+  return request({
+    url: `/course/elective/student/info?pageNum=${parameter.pageNum}&pageSize=${parameter.pageSize}`,
+    method: 'post',
+    data: value
+  })
+}
+
+export function delEletiveCourse (value) {
+  return request({
+    url: `/course/elective/student`,
+    method: 'delete',
+    data: value
+  })
+}

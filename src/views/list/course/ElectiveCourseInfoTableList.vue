@@ -18,6 +18,13 @@
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24">
+              <a-form-item label="学期" v-if="role === 'admin'">
+                <a-select v-model="queryParam.semester">
+                  <a-select-option v-for="(semester,index) in semesters" :key="index" :value="semester">{{ semester }}</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :md="8" :sm="24">
               <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
                 <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
                 <a-button style="margin-left: 8px" @click="queryReset">重置</a-button>
@@ -27,7 +34,7 @@
         </a-form>
       </div>
 
-      <div class="table-operator">
+      <div class="table-operator" v-if="role === 'admin'">
         <a-button type="primary" icon="plus" @click="handleAdd">
           新建
         </a-button>
@@ -43,8 +50,13 @@
         showPagination="auto"
       >
         <span slot="action" slot-scope="text, record">
-          <template>
-            <a @click="handleEdit(record)"> 修改</a>
+          <template v-if="role === 'admin'">
+            <a @click="handleEdit(record)" > 修改</a>
+          </template>
+          <template v-if="role === 'student'">
+            <a-spin :spinning="spinning">
+              <a @click="handleSelected(record)" > 选课</a>
+            </a-spin>
           </template>
         </span>
         <span slot="type" slot-scope="text">
@@ -77,8 +89,9 @@ import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
 import StepByStepModal from '../modules/StepByStepModal'
 import CreateForm from './ElectiveCourseInfoCreateForm'
-import { getElectiveCourse, addElectiveCourse, updateElectiveCourse } from '@/api/course'
+import { getElectiveCourse, addElectiveCourse, updateElectiveCourse, selectCourse } from '@/api/course'
 import store from '@/store'
+import { getSemesters } from '@/api/classTask'
 
 const columns = [
   {
@@ -92,6 +105,10 @@ const columns = [
   {
     title: '课程名称',
     dataIndex: 'courseName'
+  },
+  {
+    title: '开设学期',
+    dataIndex: 'semester'
   },
   {
     title: '上课时间',
@@ -110,47 +127,8 @@ const columns = [
     dataIndex: 'courseAttr'
   },
   {
-    title: '周',
-    dataIndex: 'week',
-    colSpan: 0,
-    customRender: (value, row, index) => {
-      const obj = {
-        children: value,
-        attrs: {}
-      }
-        obj.attrs.colSpan = 0
-        return obj
-    }
-  },
-  {
-    title: '节',
-    dataIndex: 'day',
-    colSpan: 0,
-    customRender: (value, row, index) => {
-      const obj = {
-        children: value,
-        attrs: {}
-      }
-      obj.attrs.colSpan = 0
-      return obj
-    }
-  },
-  {
     title: '教学楼',
     dataIndex: 'build',
-    colSpan: 0,
-    customRender: (value, row, index) => {
-      const obj = {
-        children: value,
-        attrs: {}
-      }
-      obj.attrs.colSpan = 0
-      return obj
-    }
-  },
-  {
-    title: '教室编号',
-    dataIndex: 'classroomId',
     colSpan: 0,
     customRender: (value, row, index) => {
       const obj = {
@@ -197,6 +175,7 @@ export default {
     return {
       // create model
       visible: false,
+      spinning: false,
       isshow: true,
       confirmLoading: false,
       mdl: null,
@@ -205,6 +184,7 @@ export default {
       // 查询参数
       queryParam: {
       },
+      semesters: [],
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
         return getElectiveCourse(parameter, this.queryParam)
@@ -232,6 +212,7 @@ export default {
   created () {
   },
   mounted () {
+    this.getSemesters()
   },
   computed: {
     rowSelection () {
@@ -239,9 +220,17 @@ export default {
         selectedRowKeys: this.selectedRowKeys,
         onChange: this.onSelectChange
       }
+    },
+    role () {
+      return this.$store.getters.roles[0]
     }
   },
   methods: {
+    getSemesters () {
+      getSemesters().then(res => {
+        this.semesters = res.data
+      })
+    },
     fileChange (event) {
       if (event.file.status === 'done') {
         if (event.file.response.code === 200) {
@@ -282,6 +271,20 @@ export default {
       }
       this.isdisabled = true
       this.visible = true
+    },
+    handleSelected (record) {
+      this.queryParam.studentNumber = this.$store.getters.userInfo.number
+      this.queryParam.courseId = record.courseId
+      selectCourse(this.queryParam).then(res => {
+        this.spinning = true
+        if (res.code === 200) {
+          this.$message.success(res.message)
+          record.remaining = record.remaining - 1
+        } else {
+          this.$message.warning(res.message)
+        }
+        this.spinning = false
+      })
     },
     handleOk (isdisabled) {
       const form = this.$refs.createModal.form

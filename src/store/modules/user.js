@@ -1,7 +1,6 @@
 import { login, getUserInfo, logout } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { welcome } from '@/utils/util'
-
+import { resetRoute } from '@/router'
 const user = {
   state: {
     info: {},
@@ -31,9 +30,8 @@ const user = {
     SET_ID: (state, id) => {
       state.id = id
     },
-    SET_NAME: (state, { name, welcome }) => {
+    SET_NAME: (state, { name }) => {
       state.name = name
-      state.welcome = welcome
     },
     SET_AVATAR: (state, avatar) => {
       state.avatar = avatar
@@ -79,7 +77,7 @@ const user = {
           const result = response.data
           commit('SET_ROLES', result.roles)
           commit('SET_INFO', result)
-          commit('SET_NAME', { name: result.username, welcome: welcome() })
+          commit('SET_NAME', { name: result.username })
           commit('SET_AVATAR', result.avatar)
 
           resolve(response)
@@ -93,13 +91,14 @@ const user = {
     Logout ({ commit, state }) {
       return new Promise((resolve) => {
         logout(state.token).then(() => {
-          commit('SET_TOKEN', '')
-          commit('SET_ROLES', [])
-          removeToken()
           resolve()
         }).catch(() => {
           resolve()
         }).finally(() => {
+          resetRoute()
+          commit('SET_TOKEN', '')
+          commit('SET_ROLES', [])
+          removeToken()
         })
       })
     }
