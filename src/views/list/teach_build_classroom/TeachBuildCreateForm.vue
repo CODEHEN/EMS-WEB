@@ -4,7 +4,7 @@
     :width="640"
     :visible="visible"
     :confirmLoading="loading"
-    @ok="() => { $emit('ok',time, isdisabled) }"
+    @ok="() => { $emit('ok',isdisabled) }"
     @cancel="() => { $emit('cancel') }"
   >
     <a-spin :spinning="loading">
@@ -15,7 +15,7 @@
         <a-form-item label="编号" v-show="isdisabled">
           <a-input v-decorator="['id']" :disabled="isdisabled" />
         </a-form-item>
-        <a-form-item label="学院名称" >
+        <a-form-item label="教学楼名称" >
           <a-input v-decorator="['buildName', {rules: [{required: true, message: '请输入教学楼名称'}]}]" />
         </a-form-item>
       </a-form>

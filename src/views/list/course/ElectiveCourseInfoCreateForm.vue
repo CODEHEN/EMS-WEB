@@ -22,7 +22,7 @@
           <a-select
             @select="selectTye"
             v-decorator="['type', {
-              initialValue: '33433',
+              initialValue: '',
               rules: [{required: true, message: '请选择课程类型'}]}]">
             <a-select-option value="0">线上</a-select-option>
             <a-select-option value="1">线下</a-select-option>

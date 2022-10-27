@@ -5,7 +5,7 @@
         <a-form layout="inline">
           <a-row :gutter="48">
             <a-col :md="8" :sm="24">
-              <a-form-item label="学院名称">
+              <a-form-item label="教学楼名称">
                 <a-input v-model="queryParam.buildName" placeholder=""/>
               </a-form-item>
             </a-col>
@@ -257,6 +257,7 @@ export default {
       form.validateFields((errors, values) => {
         if (!errors) {
           if (!this.editType) {
+            console.log(isdisabled)
             if (isdisabled === true) {
               updateTeachBuild(form.getFieldsValue()).then(res => {
                 this.visible = false
@@ -265,7 +266,6 @@ export default {
                 form.resetFields()
                 // 刷新表格
                 this.$refs.table.refresh()
-                this.getCollege()
                 this.$message.info('修改成功')
               })
             } else {
@@ -276,7 +276,6 @@ export default {
                 form.resetFields()
                 // 刷新表格
                 this.$refs.table.refresh()
-                this.getCollege()
                 this.$message.info('添加成功')
               })
             }

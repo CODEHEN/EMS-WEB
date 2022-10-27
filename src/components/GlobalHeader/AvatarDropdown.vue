@@ -47,10 +47,10 @@ export default {
         title: this.$t('layouts.usermenu.dialog.title'),
         content: this.$t('layouts.usermenu.dialog.content'),
         onOk: () => {
-          // return new Promise((resolve, reject) => {
-          //   setTimeout(Math.random() > 0.5 ? resolve : reject, 1500)
-          // }).catch(() => console.log('Oops errors!'))
-          return this.$store.dispatch('Logout').then(() => {
+          this.$store.dispatch('Logout').then(() => {
+            this.$router.push({ name: 'login' })
+          })
+          this.$store.dispatch('Logout').then(() => {
             this.$router.push({ name: 'login' })
           })
         },

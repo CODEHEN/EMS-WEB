@@ -4,7 +4,7 @@
     :width="640"
     :visible="visible"
     :confirmLoading="loading"
-    @ok="() => { $emit('ok', isdisabled) }"
+    @ok="() => { $emit('ok',time, isdisabled) }"
     @cancel="() => { $emit('cancel') }"
   >
     <a-spin :spinning="loading">

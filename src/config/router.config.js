@@ -88,18 +88,23 @@ export const asyncRouterMap = [
             meta: { title: 'menu.list.admin-table-list', keepAlive: true, permission: ['admin'] }
           },
           {
-            path: '/list/college-major-table-list/:pageNum([1-9]\\d*)?',
-            name: 'CollegeMajorTableListWrapper',
-            hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
-            component: () => import('@/views/list/CollegeMajorTableList'),
-            meta: { title: 'menu.list.college-major-table-list', keepAlive: true, permission: ['admin'] }
-          },
-          {
             path: '/list/class-table-list/:pageNum([1-9]\\d*)?',
             name: 'ClassTableListWrapper',
             hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
             component: () => import('@/views/list/ClassTableList'),
             meta: { title: 'menu.list.class-table-list', keepAlive: true, permission: ['admin'] }
+          },
+          {
+            path: '/public/notice',
+            name: 'Notice',
+            component: () => import('../views/list/notice/NoticeTableList'),
+            meta: { title: 'menu.list.notice', permission: ['admin'] }
+          },
+          {
+            path: '/public/reward_punishment',
+            name: 'Reward_Punishment',
+            component: () => import('../views/list/reward_punishment/Reward_PunishmentTableList'),
+            meta: { title: 'menu.list.reward_punishment', permission: ['admin'] }
           },
           {
             path: '/list/basic-list',
@@ -150,16 +155,11 @@ export const asyncRouterMap = [
         meta: { title: 'menu.public', icon: 'profile', permission: ['admin'] },
         children: [
           {
-            path: '/public/notice',
-            name: 'Notice',
-            component: () => import('../views/list/notice/NoticeTableList'),
-            meta: { title: 'menu.list.notice', permission: ['admin'] }
-          },
-          {
-            path: '/public/reward_punishment',
-            name: 'Reward_Punishment',
-            component: () => import('../views/list/reward_punishment/Reward_PunishmentTableList'),
-            meta: { title: 'menu.list.reward_punishment', permission: ['admin'] }
+            path: '/list/college-major-table-list/:pageNum([1-9]\\d*)?',
+            name: 'CollegeMajorTableListWrapper',
+            hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+            component: () => import('@/views/list/CollegeMajorTableList'),
+            meta: { title: 'menu.list.college-major-table-list', keepAlive: true, permission: ['admin'] }
           },
           {
             path: '/public/teach_build_classroom',
@@ -345,13 +345,13 @@ export const asyncRouterMap = [
         redirect: '/account/center',
         name: 'account',
         hidden: true,
-        meta: { title: 'menu.account', icon: 'user', keepAlive: true, permission: ['student'] },
+        meta: { title: 'menu.account', icon: 'user', keepAlive: true, permission: ['student', 'admin', 'teacher'] },
         children: [
           {
             path: '/account/settings',
             name: 'settings',
             component: () => import('@/views/account/settings/Index'),
-            meta: { title: 'menu.account.settings', hideHeader: true, permission: ['student'] },
+            meta: { title: 'menu.account.settings', hideHeader: true, permission: ['student', 'admin', 'teacher'] },
             redirect: '/account/settings/basic',
             hideChildrenInMenu: true,
             children: [
@@ -359,7 +359,7 @@ export const asyncRouterMap = [
                 path: '/account/settings/basic',
                 name: 'BasicSettings',
                 component: () => import('@/views/account/settings/BasicSetting'),
-                meta: { title: 'account.settings.menuMap.basic', hidden: true, permission: ['student'] }
+                meta: { title: 'account.settings.menuMap.basic', hidden: true, permission: ['student', 'admin', 'teacher'] }
               },
               {
                 path: '/account/settings/security',
@@ -369,20 +369,20 @@ export const asyncRouterMap = [
                   title: 'account.settings.menuMap.security',
                   hidden: true,
                   keepAlive: true,
-                  permission: ['student']
+                  permission: ['student', 'admin', 'teacher']
                 }
               },
               {
                 path: '/account/settings/custom',
                 name: 'CustomSettings',
                 component: () => import('@/views/account/settings/Custom'),
-                meta: { title: 'account.settings.menuMap.custom', hidden: true, keepAlive: true, permission: ['student'] }
+                meta: { title: 'account.settings.menuMap.custom', hidden: true, keepAlive: true, permission: ['student', 'admin', 'teacher'] }
               },
               {
                 path: '/account/settings/binding',
                 name: 'BindingSettings',
                 component: () => import('@/views/account/settings/Binding'),
-                meta: { title: 'account.settings.menuMap.binding', hidden: true, keepAlive: true, permission: ['student'] }
+                meta: { title: 'account.settings.menuMap.binding', hidden: true, keepAlive: true, permission: ['student', 'admin', 'teacher'] }
               },
               {
                 path: '/account/settings/notification',
@@ -392,83 +392,8 @@ export const asyncRouterMap = [
                   title: 'account.settings.menuMap.notification',
                   hidden: true,
                   keepAlive: true,
-                  permission: ['student']
+                  permission: ['student', 'admin', 'teacher']
                 }
-              }
-            ]
-          }
-        ]
-      },
-
-      // {
-      //   path: '/test',
-      //   name: '测试',
-      //   component: RouteView,
-      //   meta: { title: 'menu.list', icon: 'table', permission: ['student'] },
-      //   children: [
-      //     {
-      //       path: '/test/test',
-      //       name: 'BasicSettings',
-      //       component: () => import('@/views/test/Test'),
-      //       meta: { title: 'account.settings.menuMap.basic', permission: ['student'] }
-      //     }
-      //   ]
-      // }
-      // other
-      {
-        path: '/other',
-        name: 'otherPage',
-        component: RouteView,
-        meta: { title: '其他组件', icon: 'slack', permission: [ 'admin' ] },
-        redirect: '/other/icon-selector',
-        children: [
-          {
-            path: '/other/icon-selector',
-            name: 'TestIconSelect',
-            component: () => import('@/views/other/IconSelectorView'),
-            meta: { title: 'IconSelector', icon: 'tool', keepAlive: true, permission: [ 'admin' ] }
-          },
-          {
-            path: '/other/list',
-            component: RouteView,
-            meta: { title: '业务布局', icon: 'layout', permission: [ 'admin' ] },
-            redirect: '/other/list/tree-list',
-            children: [
-              {
-                path: '/other/list/tree-list',
-                name: 'TreeList',
-                component: () => import('@/views/other/TreeList'),
-                meta: { title: '树目录表格', keepAlive: true }
-              },
-              {
-                path: '/other/list/edit-table',
-                name: 'EditList',
-                component: () => import('@/views/other/TableInnerEditList'),
-                meta: { title: '内联编辑表格', keepAlive: true }
-              },
-              {
-                path: '/other/list/user-list',
-                name: 'UserList',
-                component: () => import('@/views/other/UserList'),
-                meta: { title: '用户列表', keepAlive: true }
-              },
-              {
-                path: '/other/list/role-list',
-                name: 'RoleList',
-                component: () => import('@/views/other/RoleList'),
-                meta: { title: '角色列表', keepAlive: true }
-              },
-              {
-                path: '/other/list/system-role',
-                name: 'SystemRole',
-                component: () => import('@/views/role/RoleList'),
-                meta: { title: '角色列表2', keepAlive: true }
-              },
-              {
-                path: '/other/list/permission-list',
-                name: 'PermissionList',
-                component: () => import('@/views/other/PermissionList'),
-                meta: { title: '权限列表', keepAlive: true }
               }
             ]
           }

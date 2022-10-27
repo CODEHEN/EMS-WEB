@@ -27,8 +27,13 @@
             <a-select-option v-for="major in majors" :key="major.id" :value="major.majorName">{{ major.majorName }}</a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item label="班级">
+        <a-form-item label="班级新增" v-if='oprtype === 0'>
           <a-select mode="multiple" placeholder="请选择" v-decorator="['classArray', {rules: [{required: true, message: '请选择班级'}]}]">
+            <a-select-option v-for="c in classes" :key="c.id" :value="c.name">{{ c.name }}</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item label="班级新增" v-if='oprtype === 1'>
+          <a-select mode="multiple" placeholder="请选择" v-decorator="['className', {rules: [{required: true, message: '请选择班级'}]}]">
             <a-select-option v-for="c in classes" :key="c.id" :value="c.name">{{ c.name }}</a-select-option>
           </a-select>
         </a-form-item>
@@ -63,10 +68,14 @@ import pick from 'lodash.pick'
 import { getCourseName } from '@/api/course'
 import { getTeaName } from '@/api/user'
 // 表单字段
-const fields = ['id', 'courseId', 'courseName', 'courseAttr', 'classArray', 'weeksNumber']
+const fields = ['id', 'semester', 'collegeName', 'majorName', 'classArray', 'className', 'courseName', 'weeksNumber', 'teacherName']
 
 export default {
   props: {
+    oprtype: {
+      type: Number,
+      required: true
+    },
     visible: {
       type: Boolean,
       required: true

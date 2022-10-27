@@ -11,13 +11,13 @@
           </div>
           <div v-if="role === 'student'">{{ user.classes }} | {{ user.college }} - {{ user.major }}</div>
           <div v-if="role === 'teacher'">{{ user.college }} - {{ user.number }}</div>
-          <div v-if="role === 'admin'">{{ user.classes }} | {{ user.college }} - {{ user.major }}</div>
+          <div v-if="role === 'admin'">{{ user.number }} | {{ user.email }} - {{ user.phone }}</div>
         </div>
       </div>
     </template>
     <div>
-      <a-row :gutter="24">
-        <a-col :xl="16" :lg="24" :md="24" :sm="24" :xs="24">
+      <a-row :gutter="24" v-if="role !== 'admin'">
+        <a-col :xl="16" :lg="24" :md="24" :sm="24" :xs="24" >
           <a-card
             class="project-list"
             :loading="loading"
@@ -34,7 +34,7 @@
           :md="24"
           :sm="24"
           :xs="24">
-          <a-card title="常用操作" style="margin-bottom: 24px" :bordered="false">
+          <a-card title="常用操作" style="margin-bottom: 24px" :bordered="false" v-if="role === 'student'">
             <div class="members">
               <a-row>
                 <a-col :span="12" style="margin-top: 10px" v-for="(op,index) in this.operations " :key="index">

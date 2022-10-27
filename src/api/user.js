@@ -17,7 +17,7 @@ export function getTeaName (value) {
 export function updateUserInfo (value) {
   return request({
     url: `/user/info`,
-    method: 'put',
+    method: 'post',
     data: value
   })
 }

@@ -95,6 +95,7 @@
         :colleges="colleges"
         :majors="majors"
         :classes="classes"
+        :oprtype="oprtype"
         @cancel="handleCancel"
         @ok="handleOk"
         @selectClasses="selectClasses"
@@ -110,8 +111,8 @@ import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
 import StepByStepModal from '../modules/StepByStepModal'
 import CreateForm from './ClassTaskCreateForm'
-import { getClassTask, addClassTask, updateCourse, Scheduling, getSemesters } from '@/api/classTask'
-import store from '@/store'
+import { getClassTask, addClassTask, Scheduling, getSemesters } from '@/api/classTask'
+// import store from '@/store'
 import { getClassesByCollege } from '@/api/classes'
 import { getMajorByCollegeName } from '@/api/major'
 import { getCollege } from '@/api/college'
@@ -199,7 +200,8 @@ export default {
       classes: [],
       majors: [],
       semesters: [],
-      que: {}
+      que: {},
+      oprtype: 0
     }
   },
   filters: {
@@ -275,6 +277,7 @@ export default {
       this.disabled = true
     },
     handleAdd () {
+      this.oprtype = 0
       this.mdl = null
       this.isdisabled = false
       this.visible = true
@@ -296,27 +299,26 @@ export default {
     handleEdit (record) {
       this.mdl = { ...record }
       this.isdisabled = true
+      this.oprtype = 1
       this.visible = true
     },
     handleOk (isdisabled) {
-      console.log('a')
-      console.log(isdisabled)
       const form = this.$refs.createModal.form
       this.confirmLoading = true
       form.validateFields((errors, values) => {
         if (!errors) {
-          form.setFieldsValue({ 'createdId': store.getters.userInfo.id })
+          // form.setFieldsValue({ 'createdId': store.getters.userInfo.id })
           if (isdisabled === true) {
-            updateCourse(form.getFieldsValue()).then(res => {
-              this.visible = false
-              this.confirmLoading = false
-              // 重置表单数据
-              form.resetFields()
-              // 刷新表格
-              this.$refs.table.refresh()
+            // updateCourse(form.getFieldsValue()).then(res => {
+            //   this.visible = false
+            //   this.confirmLoading = false
+            //   // 重置表单数据
+            //   form.resetFields()
+            //   // 刷新表格
+            //   this.$refs.table.refresh()
+            //   this.$message.info('修改成功')
+            // })
 
-              this.$message.info('修改成功')
-            })
           } else {
             addClassTask(form.getFieldsValue()).then(res => {
               this.visible = false
